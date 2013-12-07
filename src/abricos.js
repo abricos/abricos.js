@@ -8,7 +8,7 @@
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){
-	Abricos = {};
+	var Abricos = {};
 }
 
 var _initAbricos = function(){
@@ -19,7 +19,8 @@ var _initAbricos = function(){
 	
 	A.Env = {
 		'mods': {},
-		'temps': {}
+		'temps': {},
+		'langs': {}
 	};
 	
 	A.mod = A.mod || {};
@@ -28,9 +29,11 @@ var _initAbricos = function(){
 	 * The Language class manages phrases localization
 	 * 
 	 * @class Language
-	 * @constructor
+	 * @static
 	 */
-	
+
+	var AL = A.Language = {};
+
 	// Clone languge data (private function)
 	var cloneLang = function(from, to){
 		for (var el in from){
@@ -43,22 +46,14 @@ var _initAbricos = function(){
 			}
 		}
 	};
-
-	var Language = function(){
-		this.init();
+	
+	
+	AL.add = function(lang, o){
+		var d = A.Env.langs,
+			dLang = d[lang] || (d[lang] = {});
+		
+		cloneLang(o, dLang);
 	};
-	Language.prototype = {
-		init: function(){
-			this.data = {};
-		},
-		add: function(lang, o){
-			var d = this.data,
-				dLang = d[lang] || (d[lang] = {});
-			
-			cloneLang(o, dLang);
-		}
-	};
-	A.language = new Language();
 	
 	var CSSManager = function(){
 		this.init();
@@ -107,7 +102,7 @@ var _initAbricos = function(){
 				tmc[tName] = o[tName];
 			}
 		}else if (L.isString(o)){
-			// TODO: Abricos.template.add(modName, compName, tplName, tpl)
+			// TODO: Abricos.template.add(modName, compName, tplName, tplValue)
 		}
 	};
 	

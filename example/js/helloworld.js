@@ -10,7 +10,7 @@ A.Template.add(MODNAME, COMPNAME, {
 		"</div>"
 });
 
-A.language.add('en', {MODNAME: {COMPNAME: {
+A.Language.add('en', {'mod': {MODNAME: {COMPNAME: {
 	'widget': {
 		'title': 'Hello World!',
 		'button': {
@@ -18,7 +18,7 @@ A.language.add('en', {MODNAME: {COMPNAME: {
 			'clear': 'Clear Style'
 		}
 	}
-}}});
+}}}});
 
 A.css.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold;}");
 
