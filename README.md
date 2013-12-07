@@ -1,4 +1,4 @@
-abricosjs
+abricos.js
 =========
 
-AbricosJS is a effective framework to work with a template
+Abricos.js is a effective framework to work with a template
