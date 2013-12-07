@@ -15,12 +15,18 @@ var _initAbricos = function(){
 
 	var A = Abricos,
 		Y = YUI,
-		L = Y.Lang;
+		L = Y.Lang,
+		SLICE = Array.prototype.slice;
+	
+	A.config = Y.merge({
+		'lang': 'en'
+	}, Abricos_Config || {});
 	
 	A.Env = {
 		'mods': {},
 		'temps': {},
-		'langs': {}
+		'langs': {},
+		'css': {}
 	};
 	
 	A.mod = A.mod || {};
@@ -32,7 +38,7 @@ var _initAbricos = function(){
 	 * @static
 	 */
 
-	var AL = A.Language = {};
+	var LNG = A.Language = {};
 
 	// Clone languge data (private function)
 	var cloneLang = function(from, to){
@@ -47,25 +53,132 @@ var _initAbricos = function(){
 		}
 	};
 	
-	
-	AL.add = function(lang, o){
+	/**
+	 * Add a language phrases in global storage
+	 * @param {String} Language ID
+	 * @param {Object} Language phrases
+	 * @method add
+	 * @static
+	 */
+	LNG.add = function(lang, o){
 		var d = A.Env.langs,
-			dLang = d[lang] || (d[lang] = {});
+			dLang = d[lang] || (d[lang] = {}),
+			args = SLICE.call(arguments, 0),
+			aln = args.length;
 		
-		cloneLang(o, dLang);
-	};
-	
-	var CSSManager = function(){
-		this.init();
-	};
-	CSSManager.prototype = {
-		init: function(){},
-		add: function(mName, cName){
+		if (aln == 2){ // Abricos.Language.add('ru', {...})
+			cloneLang(o, dLang);
+		}else if (aln == 4){ // Abricos.Language.add('ru', 'mymod', 'mycomp', {...})
 			
+			var mnm = args[1], cnm = args[2], o = args[3],
+				no = {'mod': {}};
+			
+			no['mod'][mnm] = {};
+			no['mod'][mnm][cnm] = o;
+			
+			cloneLang(o, no);
 		}
 	};
-	A.css = new CSSManager();
 	
+	/**
+	 * Get a phrase or phrases collection by ID.
+	 * Example: 
+	 * 	Abricos.Language.get('mod.mymod.mycomp.title')
+	 * 	or
+	 * 	Abricos.Language.get(['mod', 'mymod', 'mycomp', 'title'])
+	 * @method add
+	 * @static
+	 */
+	LNG.get = function(key, cfg){
+		cfg = L.merge({
+			'lang': A.config.lang
+		}, cfg || {});
+		
+		var d = A.Env.langs[cfg.lang];
+		if (!d){ return ''; }
+
+		if (L.isString(key)){
+			key = key.split('.');
+		}
+		if (!L.isArray(key)){
+			return '';
+		}
+		
+		var i, l = d;
+		
+		for (i=0;i<key.length;i++){
+			l = l[key[i]];
+			if (!L.isValue(l)){
+				return '';
+			}
+		}
+		return l;
+	};
+	
+	/**
+	 * Replace language identifiers in text
+	 * @param {String} s Source
+	 * @param {Object|NULL} cfg Config
+	 * @return {String} Text filled language phrases
+	 * @method fillText
+	 * @static
+	 */
+	LNG.fillText = function(s, cfg){
+		
+		cfg = Y.merge({
+			'lang': 'en'
+		}, cfg || {});
+		
+		// replacement of long IDs {#...}
+		var exp = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),		
+			arr = s.match(exp);
+
+		if (!L.isArray(arr)){ return s; }
+
+		var i, key, ph;
+		for (i=0;i<arr.length;i++){
+			key = arr[i].replace(/[\{#\}]/g, '');
+			
+			ph =  LNG.get(key);
+			s = s.replace(arr[i], ph);
+		}
+		
+		return s;
+	};
+	
+	/**
+	 * The CSS class
+	 * 
+	 * @class Language
+	 * @static
+	 */
+
+	var CSS = A.CSS = {};
+	
+	
+	/**
+	 * Get the css source of a specific component.
+	 * @param {String} mnm The name of the module.
+	 * @param {String} cnm The name of the component.
+	 * @method get
+	 * @return {Object}
+	 * @static
+	 */
+	CSS.get = function(mnm, cnm){
+		var t = A.Env.css;
+		
+		if (t[mnm] && t[mnm][cnm]){
+			return t[mnm][cnm];
+		}
+		return null;
+	};
+	
+	CSS.add = function(mnm, cnm, seed){
+		var t = A.Env.css,
+			tm = t[mnm] || (t[mnm] = {});
+
+		tm[cnm] = seed;
+	};	
 	
 	/**
 	 * The Template class manages template elements
@@ -78,22 +191,26 @@ var _initAbricos = function(){
 	
 	/**
 	 * Get templates of a specific component.
-	 * @param {String} mName The name of the module.
-	 * @param {String} cName The name of the component.
+	 * @param {String} mnm The name of the module.
+	 * @param {String} cnm The name of the component.
 	 * @method get
 	 * @return {Object}
 	 * @static
 	 */
-	T.get = function(mName, cName){
+	T.get = function(mnm, cnm){
 		var t = A.Env.temps;
-			tm = t[mName] || (t[mName] = {});
-			
-		return tm[cName] || (tm[cName] = {})
+		
+		if (t[mnm] && t[mnm][cnm]){
+			return t[mnm][cnm];
+		}
+		return null;
 	};
 	
-	T.add = function(mName, cName, o){
-		var tmc = T.get(mName, cName);
-		
+	T.add = function(mnm, cnm, seed){
+		var t = A.Env.temps,
+			tm = t[mnm] || (t[mnm] = {}),
+			tmc = tm[cnm] || (tm[cnm] = {});
+
 		if (L.isObject(o)){
 			for (var tName in o){
 				
@@ -104,6 +221,56 @@ var _initAbricos = function(){
 		}else if (L.isString(o)){
 			// TODO: Abricos.template.add(modName, compName, tplName, tplValue)
 		}
+	};
+	
+	var _clone = function(t){
+		
+
+
+		return ct;
+	};
+	
+	T.build = function(mnm, cnm, names, override){
+		
+		var t = T.get(mnm, cnm);
+		if (!L.isObject(t)){
+			t = {};
+		}
+		
+		names = L.isString(names) ? names : '';
+		
+		// cloning template elements
+		var ct = {};
+		if (names != ''){
+			var arr = names.split(','), i, name;
+			for (i=0;i<arr.length;i++){
+				name = L.trim(arr[i]);
+				if (t[name]){
+					ct[name] = t[name];
+				}
+			}
+		}else{
+			for (var name in t){
+				ct[name] = t[name]; 
+			};
+		}
+		
+		// overload existing template elements
+		if (L.isObject(override)){
+			// TODO: need to implement by the technique Abricos Platform
+			/*
+			var tos = override.template.source;
+			for (var name in ct){
+				if (tos[name]){
+					ct[name] = tos[name];
+				}
+			}
+			/**/
+		}
+		
+		
+		
+		
 	};
 	
 	
@@ -142,25 +309,25 @@ var _initAbricos = function(){
 	/**
 	 * Determines if the component with the given name exists.
 	 * 
-	 * @param {String} mName The name of the module.
-	 * @param {String} cName The name of the component.
+	 * @param {String} mnm The name of the module.
+	 * @param {String} cnm The name of the component.
 	 * @return {Boolean} True if the component exists, false if not.
 	 * @method exists
 	 * @static
 	 */
-	A.exists = function(mName, cName){
+	A.exists = function(mnm, cnm){
 		var mods = A.Env.mods;
 
-		if (!mods[mName]){ return false; }
+		if (!mods[mnm]){ return false; }
 
-		return !!(mods[mName][cName]);
+		return !!(mods[mnm][cnm]);
 	};
 	
-	A.add = function(mName, cName, o){
+	A.add = function(mnm, cnm, o){
 		var mods = A.Env.mods;
 
-		if (A.exists(mName, cName)){
-			throw new Error("Component is already registered: module="+mName+", component="+cName);
+		if (A.exists(mnm, cnm)){
+			throw new Error("Component is already registered: module="+mnm+", component="+cnm);
 		}
 
 		var comp;
@@ -177,16 +344,16 @@ var _initAbricos = function(){
 			return;
 		}
 		
-		comp.moduleName = mName;
-		comp.name = cName;
+		comp.moduleName = mnm;
+		comp.name = cnm;
 		
-		var m = mods[mName] || (mods[mName] = {});
+		var m = mods[mnm] || (mods[mnm] = {});
 
-		m[cName] = comp;
+		m[cnm] = comp;
 		
 		var fn = comp.entryPoint;
 		if (L.isFunction(fn)){
-			var NS = A.mod[mName] || (A.mod[mName] = {});
+			var NS = A.mod[mnm] || (A.mod[mnm] = {});
 			
 			fn(NS);
 		}

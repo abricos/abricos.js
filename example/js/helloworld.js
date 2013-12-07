@@ -14,13 +14,23 @@ A.Language.add('en', {'mod': {MODNAME: {COMPNAME: {
 	'widget': {
 		'title': 'Hello World!',
 		'button': {
-			'set': 'Set Bold Style',
+			'set': 'Set Style',
 			'clear': 'Clear Style'
 		}
 	}
 }}}});
 
-A.css.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold;}");
+A.Language.add('ru', MODNAME, COMPNAME, {
+	'widget': {
+		'title': 'Привет мир!',
+		'button': {
+			'set': 'Установить стиль',
+			'clear': 'Очистить стиль'
+		}
+	}
+});
+
+A.CSS.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold;}");
 
 A.add(MODNAME, COMPNAME, function(NS){
 	
