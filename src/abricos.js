@@ -250,6 +250,11 @@ var _initAbricos = function(){
 	
 	T.build = function(mnm, cnm, names, cfg){
 		
+		cfg = Y.merge({
+			'defTName': null
+		}, cfg || {});
+
+		
 		var t = T.get(mnm, cnm);
 		if (!L.isObject(t)){
 			t = {};
@@ -260,12 +265,18 @@ var _initAbricos = function(){
 		// cloning template elements
 		var ct = {};
 		if (names != ''){
-			var arr = names.split(','), i, name;
+			var arr = names.split(','), i, name, defTName = null;
 			for (i=0;i<arr.length;i++){
 				name = L.trim(arr[i]);
-				if (t[name]){
-					ct[name] = t[name];
+				
+				if (!t[name]){ continue; }
+				ct[name] = t[name];
+				if (!defTName){
+					defTName = name;
 				}
+			}
+			if (!L.isValue(cfg['defTName'])){
+				cfg['defTName'] = defTName;
 			}
 		}else{
 			for (var name in t){
@@ -297,7 +308,8 @@ var _initAbricos = function(){
 		cfg = Y.merge({
 			'modName': null,
 			'compName': null,
-			'idPrefix': 'abricos_'
+			'idPrefix': 'abricos_',
+			'defTName': null
 		}, cfg || {});
 		
 		this.init(t, cfg);
@@ -316,6 +328,10 @@ var _initAbricos = function(){
 			// fill identifiers language phrases
 			var lngCfg = Y.merge(cfg);
 			for (var name in t){
+				if (!L.isValue(cfg['defTName'])){
+					cfg['defTName'] = name;
+				}
+				
 				t[name] = LNG.fillText(ct[name], lngCfg);
 			}
 			
@@ -382,13 +398,35 @@ var _initAbricos = function(){
 		},
 		
 		// Get HTML element Id
-		gelid: function(){
+		gelid: function(key){
+			if (!L.isString(key)){ return null; }
 			
+			var tName = this.cfg['defTName'],
+				a = key.split('.');
+			
+			if (!L.isString(tName)){ return null; }
+			
+			if (a.length > 1){
+				var tnm = L.trim(a[0]);
+				if (tnm.length > 0){
+					tName = tnm;
+				}
+				key = a[1];
+			}
+			var ta = this.idMap[tName];
+			if (!ta){ return null; }
+			
+			return ta[key] || null;
 		},
 		
 		// Get HTML element
-		gel: function(){
+		gel: function(key){
+			var id = this.gelid(key);
+			if (!L.isValue(id)){ return null; }
 			
+			var el = document.getElementById(id);
+			
+			return el || null;
 		}
 	};
 	A.TemplateManager = TemplateManager;
