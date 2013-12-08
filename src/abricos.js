@@ -46,13 +46,14 @@ var _initAbricos = function(){
 
 	// Clone languge data (private function)
 	var cloneLang = function(from, to){
-		for (var el in from){
-			if (L.isObject(from[el]) || L.isArray(from[el])){
-				if (typeof to[el] == 'undefined')
-					to[el] = {};
-				cloneLang(from[el], to[el]);
+		for (var n in from){
+			if (L.isObject(from[n]) || L.isArray(from[n])){
+				if (typeof to[n] == 'undefined'){
+					to[n] = {};
+				}
+				cloneLang(from[n], to[n]);
 			}else{
-				to[el] = from[el];
+				to[n] = from[n];
 			}
 		}
 	};
@@ -73,14 +74,13 @@ var _initAbricos = function(){
 		if (aln == 2){ // Abricos.Language.add('ru', {...})
 			cloneLang(o, dLang);
 		}else if (aln == 4){ // Abricos.Language.add('ru', 'mymod', 'mycomp', {...})
-			
 			var mnm = args[1], cnm = args[2], o = args[3],
 				no = {'mod': {}};
 			
 			no['mod'][mnm] = {};
 			no['mod'][mnm][cnm] = o;
-			
-			cloneLang(o, no);
+
+			cloneLang(no, dLang);
 		}
 	};
 	
@@ -94,7 +94,8 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	LNG.get = function(key, cfg){
-		cfg = L.merge({
+		
+		cfg = Y.merge({
 			'lang': A.config.lang
 		}, cfg || {});
 		
@@ -109,7 +110,6 @@ var _initAbricos = function(){
 		}
 		
 		var i, l = d;
-		
 		for (i=0;i<key.length;i++){
 			l = l[key[i]];
 			if (!L.isValue(l)){
@@ -128,11 +128,12 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	LNG.fillText = function(s, cfg){
-		
+
 		cfg = Y.merge({
 			'lang': 'en',
 			'modName': null,
-			'compName': null
+			'compName': null,
+			'tName': null
 		}, cfg || {});
 		
 		// replacement of long IDs {#...}
@@ -150,7 +151,9 @@ var _initAbricos = function(){
 		}
 
 		// replacement of short IDs {##...}
-		if (L.isValue(cfg['modName']) && L.isValue(cfg['compName'])){
+		if (L.isValue(cfg['modName']) 
+				&& L.isValue(cfg['compName'])
+				&& L.isValue(cfg['tName'])){
 
 			var exp = new RegExp("(\{\##[a-zA-Z0-9_\.\-]+\})", "g"),
 				arr = s.match(exp);
@@ -159,9 +162,10 @@ var _initAbricos = function(){
 				var i, key, ph;
 				for (i=0;i<arr.length;i++){
 					key = arr[i].replace(/[\{##\}]/g, '');
-					// if (key == ''){ continue; }
 					
-					key = 'mod.'+cfg['modName']+'.'+cfg['compName']+'.'+key;
+					key = 'mod.'+cfg['modName']+'.'+cfg['compName']+'.'
+						+cfg['tName']+'.'+key;
+
 					ph =  LNG.get(key);
 					s = s.replace(arr[i], ph);
 				}
@@ -203,7 +207,27 @@ var _initAbricos = function(){
 			tm = t[mnm] || (t[mnm] = {});
 
 		tm[cnm] = seed;
-	};	
+	};
+	
+	CSS.apply = function(mnm, cnm){
+		var css = CSS.get(mnm, cnm);
+		if (!L.isValue(css)){ return null; }
+		
+		if (CSS.disable){ return; }
+
+		var style = document.createElement('style');
+		style['type'] = 'text/css';
+		
+		if (style.styleSheet){ // IE
+			style.styleSheet.cssText = css;
+		}else{
+			var tt1 = document.createTextNode(css);
+			style.appendChild(tt1);
+		}
+		
+		var hh1 = document.getElementsByTagName('head')[0];
+		hh1.appendChild(style);
+	};
 	
 	/**
 	 * The Template class manages template elements
@@ -249,8 +273,9 @@ var _initAbricos = function(){
 	};
 	
 	T.build = function(mnm, cnm, names, cfg){
-		
 		cfg = Y.merge({
+			'modName': mnm,
+			'compName': cnm,
 			'defTName': null
 		}, cfg || {});
 
@@ -297,7 +322,6 @@ var _initAbricos = function(){
 			}
 		}
 		/**/
-		
 		return new A.TemplateManager(ct, cfg);
 	};
 	
@@ -331,8 +355,9 @@ var _initAbricos = function(){
 				if (!L.isValue(cfg['defTName'])){
 					cfg['defTName'] = name;
 				}
+				lngCfg['tName'] = name;
 				
-				t[name] = LNG.fillText(ct[name], lngCfg);
+				t[name] = LNG.fillText(t[name], lngCfg);
 			}
 			
 			// create a map of unique identifiers in the template
@@ -504,17 +529,39 @@ var _initAbricos = function(){
 		comp.name = cnm;
 		comp.buildTemplate = function(){
 			
+			var args = SLICE.call(arguments, 0);
+			
+			var tNames = "";
+			
+			if (L.isObject(args[0])){
+				// TODO: bind TM functions
+				
+				if (L.isString(args[1])){
+					tNames = args[1];
+				}
+			}
+			if (L.isString(args[0])){
+				tNames = args[0];
+			}
+			
+			if (!comp._cssApplied){
+				comp._cssApplied = true;
+				
+				// applying CSS on the first call buildTemplate
+				CSS.apply(comp.moduleName, comp.name);
+			}
+			
+			return T.build(comp.moduleName, comp.name, tNames);
 		};
 		
 		
 		var m = mods[mnm] || (mods[mnm] = {});
 		m[cnm] = comp;
 		
-		var fn = comp.entryPoint;
-		if (L.isFunction(fn)){
+		if (L.isFunction(comp.entryPoint)){
 			var NS = A.mod[mnm] || (A.mod[mnm] = {});
 			
-			fn(NS);
+			comp.entryPoint(NS);
 		}
 	};
 };

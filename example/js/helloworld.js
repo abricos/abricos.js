@@ -4,13 +4,13 @@ var A = Abricos,
 
 A.Template.add(MODNAME, COMPNAME, {
 	"widget": "<div id='{i#id}'>" +
-		"<span id='{v#title}'>{##title}</span>" +
+		"<span id='{i#title}'>{##title}</span> <br />" +
 		"<input id='{i#btnSet}' type='button' value='{##button.set}'/>" +
 		"<input id='{i#btnClear}' type='button' value='{##button.clear}'/>" +
 		"</div>"
 });
 
-A.Language.add('en', {'mod': {MODNAME: {COMPNAME: {
+A.Language.add('en', MODNAME, COMPNAME, {
 	'widget': {
 		'title': 'Hello World!',
 		'button': {
@@ -18,7 +18,7 @@ A.Language.add('en', {'mod': {MODNAME: {COMPNAME: {
 			'clear': 'Clear Style'
 		}
 	}
-}}}});
+});
 
 A.Language.add('ru', MODNAME, COMPNAME, {
 	'widget': {
@@ -30,7 +30,7 @@ A.Language.add('ru', MODNAME, COMPNAME, {
 	}
 });
 
-A.CSS.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold;}");
+A.CSS.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold; color: red;}");
 
 A.add(MODNAME, COMPNAME, function(NS){
 	
@@ -47,13 +47,13 @@ A.add(MODNAME, COMPNAME, function(NS){
 			elContainer.innerHTML = TM.replace('widget');
 			
 			var elBtnSet = TM.gel('widget.btnSet');
-			elBtnSet.onClick = function(){
-				elBtnSet.className = 'helloWorldBold';
+			elBtnSet.onclick = function(){
+				TM.gel('widget.title').className = 'helloWorldBold';
 			};
 
 			var elBtnClear = TM.gel('widget.btnClear');
-			elBtnClear.onClick = function(){
-				elBtnClear.className = '';
+			elBtnClear.onclick = function(){
+				TM.gel('widget.title').className = '';
 			};
 			
 		}

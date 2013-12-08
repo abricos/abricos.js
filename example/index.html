@@ -2,20 +2,21 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Abricos.js Test</title>
+	<title>Abricos.js Example 1</title>
 	
 	<script src="../src/abricos.js"></script>
 	<script src="js/helloworld.js"></script>
 </head>
 <body>
 
-<h1>Abricos.js Test</h1>
+<h1>Example 1</h1>
 
 <div id="helloworld">Loading widget. Please, wait...</div>
 	
 <script>
 
-
+	var el = document.getElementById('helloworld');
+	new Abricos.mod.example.HelloWorldWidget(el);
 
 </script>
 	
