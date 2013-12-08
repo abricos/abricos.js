@@ -11,13 +11,17 @@ if (typeof Abricos == 'undefined' || !Abricos){
 	var Abricos = {};
 }
 
+if (typeof Abricos_Config == 'undefined'){
+	var Abricos_Config = {};
+}
+
 var _initAbricos = function(){
 
 	var A = Abricos,
 		Y = YUI,
 		L = Y.Lang,
 		SLICE = Array.prototype.slice;
-	
+
 	A.config = Y.merge({
 		'lang': 'en'
 	}, Abricos_Config || {});
@@ -116,31 +120,52 @@ var _initAbricos = function(){
 	};
 	
 	/**
-	 * Replace language identifiers in text
-	 * @param {String} s Source
-	 * @param {Object|NULL} cfg Config
-	 * @return {String} Text filled language phrases
+	 * Replace language IDs in text.
+	 * @param {String} s Source.
+	 * @param {Object|NULL} cfg Config.
+	 * @return {String} Text filled language phrases.
 	 * @method fillText
 	 * @static
 	 */
 	LNG.fillText = function(s, cfg){
 		
 		cfg = Y.merge({
-			'lang': 'en'
+			'lang': 'en',
+			'modName': null,
+			'compName': null
 		}, cfg || {});
 		
 		// replacement of long IDs {#...}
 		var exp = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),		
 			arr = s.match(exp);
 
-		if (!L.isArray(arr)){ return s; }
+		if (L.isArray(arr)){ 
+			var i, key, ph;
+			for (i=0;i<arr.length;i++){
+				key = arr[i].replace(/[\{#\}]/g, '');
+				
+				ph =  LNG.get(key);
+				s = s.replace(arr[i], ph);
+			}
+		}
 
-		var i, key, ph;
-		for (i=0;i<arr.length;i++){
-			key = arr[i].replace(/[\{#\}]/g, '');
-			
-			ph =  LNG.get(key);
-			s = s.replace(arr[i], ph);
+		// replacement of short IDs {##...}
+		if (L.isValue(cfg['modName']) && L.isValue(cfg['compName'])){
+
+			var exp = new RegExp("(\{\##[a-zA-Z0-9_\.\-]+\})", "g"),
+				arr = s.match(exp);
+
+			if (L.isArray(arr)){ 
+				var i, key, ph;
+				for (i=0;i<arr.length;i++){
+					key = arr[i].replace(/[\{##\}]/g, '');
+					// if (key == ''){ continue; }
+					
+					key = 'mod.'+cfg['modName']+'.'+cfg['compName']+'.'+key;
+					ph =  LNG.get(key);
+					s = s.replace(arr[i], ph);
+				}
+			}
 		}
 		
 		return s;
@@ -211,26 +236,19 @@ var _initAbricos = function(){
 			tm = t[mnm] || (t[mnm] = {}),
 			tmc = tm[cnm] || (tm[cnm] = {});
 
-		if (L.isObject(o)){
-			for (var tName in o){
+		if (L.isObject(seed)){
+			for (var tName in seed){
 				
-				if (!L.isString(o[tName])){ continue; }
+				if (!L.isString(seed[tName])){ continue; }
 				
-				tmc[tName] = o[tName];
+				tmc[tName] = seed[tName];
 			}
-		}else if (L.isString(o)){
+		}else if (L.isString(seed)){
 			// TODO: Abricos.template.add(modName, compName, tplName, tplValue)
 		}
 	};
 	
-	var _clone = function(t){
-		
-
-
-		return ct;
-	};
-	
-	T.build = function(mnm, cnm, names, override){
+	T.build = function(mnm, cnm, names, cfg){
 		
 		var t = T.get(mnm, cnm);
 		if (!L.isObject(t)){
@@ -252,28 +270,129 @@ var _initAbricos = function(){
 		}else{
 			for (var name in t){
 				ct[name] = t[name]; 
-			};
+			}
 		}
 		
 		// overload existing template elements
+		/*
 		if (L.isObject(override)){
 			// TODO: need to implement by the technique Abricos Platform
-			/*
+			
 			var tos = override.template.source;
 			for (var name in ct){
 				if (tos[name]){
 					ct[name] = tos[name];
 				}
 			}
-			/**/
 		}
+		/**/
 		
-		
-		
-		
+		return new A.TemplateManager(ct, cfg);
 	};
 	
+	var TemplateManager = function(t, cfg){
+		
+		t = t || {};
+		
+		cfg = Y.merge({
+			'modName': null,
+			'compName': null,
+			'idPrefix': 'abricos_'
+		}, cfg || {});
+		
+		this.init(t, cfg);
+	};
 	
+	TemplateManager._counter = 1;
+	
+	TemplateManager.prototype = {
+		init: function(t, cfg){
+			
+			this.cfg = cfg;
+			
+			// map unique identifiers in the template
+			this.idMap = {};
+			
+			// fill identifiers language phrases
+			var lngCfg = Y.merge(cfg);
+			for (var name in t){
+				t[name] = LNG.fillText(ct[name], lngCfg);
+			}
+			
+			// create a map of unique identifiers in the template
+			// Eexample: "<div id='{i#mydiv}'>...</div>" => (idMap[mydiv] = 'abricos_8462') 
+			var exp = new RegExp("(\{i\#[a-z0-9_\-]+\})", "gi");
+			for (var name in t){
+				var s = t[name],
+					arr = s.match(exp);
+				
+				if (!L.isArray(arr)) { continue; }
+				
+				var i, key, genid,
+					tIdMap = this.idMap[name] = {};
+				for (i=0;i<arr.length;i++){
+					key = arr[i].replace(/\{i#([a-zA-Z0-9_\-]+)\}/, '$1');
+					
+					if (tIdMap[key]){ continue; }
+					
+					tIdMap[key] = genid = this.genid(name);
+					
+					t[name] = s = s.replace(new RegExp(arr[i], "gi"), genid);
+				}
+			}
+			
+			this.data = t;
+		},
+		genid: function(name){
+			var cfg = this.cfg,
+				id = cfg.idPrefix+name;
+
+			if (L.isString(cfg.modName) && L.isString(cfg.compName)){
+				id += '_'+cfg.modName.substring(0,3);
+				id += '_'+cfg.compName.substring(0,3);
+			}
+			
+			id += '_'+(TemplateManager._counter++);
+			
+			return id;
+		},
+		get: function(tnm){
+			return this.data[tnm] || "";
+		},
+		replace: function(tnm, o){
+			var t = this.get(tnm),
+				args = SLICE.call(arguments, 0);
+			
+			if (args.length > 2 && L.isString(args[1])){
+				// Example: TM.replace('widget', 'myvar', 'Hello World!');
+				var no = {};
+				no[args[1]] = args[2];
+				o = no;
+			}
+			
+			if (!L.isObject(o)){ return t; }
+			
+			var exp;
+			for (var nm in o){
+				exp = new RegExp("\{v\#"+nm+"\}", "g");
+				t = t.replace(exp, o[nm]);
+			}
+			
+			return t;
+		},
+		
+		// Get HTML element Id
+		gelid: function(){
+			
+		},
+		
+		// Get HTML element
+		gel: function(){
+			
+		}
+	};
+	A.TemplateManager = TemplateManager;
+
 	
 	var Component = function(cfg){
 		cfg = Y.merge({
@@ -285,9 +404,9 @@ var _initAbricos = function(){
 	Component.prototype = {
 		init: function(cfg){
 		
-			this.moduleName = cfg['moduleName'];
+			this.moduleName = cfg['modName'];
 			
-			this.name = cfg['name'];
+			this.name = cfg['compName'];
 			
 			this.entryPoint = cfg['entryPoint'];
 
@@ -296,7 +415,6 @@ var _initAbricos = function(){
 		}
 	};
 	A.Component = Component;
-	
 	
     /**
      * The Abricos global namespace object
@@ -346,9 +464,12 @@ var _initAbricos = function(){
 		
 		comp.moduleName = mnm;
 		comp.name = cnm;
+		comp.buildTemplate = function(){
+			
+		};
+		
 		
 		var m = mods[mnm] || (mods[mnm] = {});
-
 		m[cnm] = comp;
 		
 		var fn = comp.entryPoint;
