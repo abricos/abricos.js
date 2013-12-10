@@ -19,7 +19,36 @@ A.Template.add(MODNAME, COMPNAME, {
 	"langchange": "<div id='{i#id}'>" +
 		"<a href='#' id='{i#ben}' class='lang-ru'>English</a>" +
 		"<a href='#' id='{i#bru}' class='lang-en'>Русский</a>" +
+		"</div>",
+		
+	"footer": 
+		"<div class='pure-u-2-5'>"+
+		"	<div class='l-box'>"+
+		"	    <p class='legal-license'>"+
+		"	        This site is built with using Abricos.js v0.1<br>"+
+		"	        All code on this site is licensed under the <a href='https://github.com/abricos/abricos.js/blob/master/LICENSE'>MIT License (MIT)</a> unless stated otherwise."+
+		"	    </p>"+
+		"	</div>"+
+		"</div>"+
+		"<div class='pure-u-1-5'>"+
+		"	<div class='l-box legal-logo'>"+
+		"	    <a href='http://abricos.org/'>"+
+		"	        <img src='assets/img/logo-footer.png' height='50' width='50'"+
+		"	             alt='Abricos logo'>"+
+		"	    </a>"+
+		"	</div>"+
+		"</div>"+
+		"<div class='pure-u-2-5'>"+
+		"	<div class='l-box'>"+
+		"	    <ul class='legal-links'>"+
+		"	        <li><a href='https://github.com/abricos/abricos.js'>GitHub Project</a></li>"+
+		"	    </ul>"+
+		"	    <p class='legal-copyright'>"+
+		"	        &copy; 2013 Abricos.js. All rights reserved."+
+		"	    </p>"+
+		"	</div>"+
 		"</div>"
+		
 });
 
 var PAGES = [{
@@ -84,16 +113,19 @@ A.add(MODNAME, COMPNAME, function(NS, CMP){
 	};
 	
 	var elLang = document.getElementById("lang-change-container");
-	
 	if (elLang){
 		new LanguageChangeWidget(elLang);
 	}
 
 	
 	var elMenu = document.getElementById("menu");
-	
 	if (elMenu){
 		new MainMenuWidget(elMenu);
+	}
+	
+	var elFooter = document.getElementById("footer-container");
+	if (elFooter){
+		elFooter.innerHTML = CMP.template.build('footer').replace('footer');
 	}
 	
 });
