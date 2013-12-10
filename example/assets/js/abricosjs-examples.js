@@ -4,46 +4,50 @@ var A = Abricos,
 
 A.Template.add(MODNAME, COMPNAME, {
 	"menuitem": 
-		"<li class='{v#sel}'>" +
+		"<li class='{v#sel} {v#divided}'>" +
 		"<a href='{v#link}'>{v#title}</a>" +
 		"</li>"
 });
 
-A.Language.add('en', MODNAME, COMPNAME, {
-	'pages': {
-		'0': {
-			'nm': 'index.html',
-			'tl': 'Template in JS'
-		}
-	}
-});
+var PAGES = [{
+	'nm': 'index',
+	'tl': 'Template in JS'
+}, {
+	'nm': 'abricos.org',
+	'tl': 'Abricos Platform',
+	'url': 'http://abricos.org',
+	'divided': true
+}];
 
-A.add(MODNAME, COMPNAME, function(NS){
+A.add(MODNAME, COMPNAME, function(NS, CMP){
 	
-	var buildTemplate = this.buildTemplate;
-	
-	var MainMenuWidget = function(container){
-		this.init(container);
+	var MainMenuWidget = function(container, cfg){
+		this.init(container, cfg || {});
 	};
 	MainMenuWidget.prototype = {
-		init: function(container){
-			
-			var TM = buildTemplate('menuitem');
-			
-			elContainer.innerHTML = TM.replace('widget');
-			
-			var elBtnSet = TM.gel('widget.btnSet');
-			elBtnSet.onclick = function(){
-				TM.gel('widget.title').className = 'helloWorldBold';
-			};
+		init: function(container, cfg){
 
-			var elBtnClear = TM.gel('widget.btnClear');
-			elBtnClear.onclick = function(){
-				TM.gel('widget.title').className = '';
-			};
+			var TM = this.tm = CMP.template.build('menuitem'),
+				lst = "";
 			
+			for (var i=0;i<PAGES.length;i++){
+				var p = PAGES[i];
+				lst += TM.replace('menuitem', {
+					'link': ''+p.nm+'.html',
+					'title': p.tl,
+					'sel': '',
+					'divided': (p.divided ? 'menu-item-divided' : '')
+				});
+			}
+			
+			container.innerHTML = lst;
 		}
 	};
-	NS.MainMenuWidget = MainMenuWidget;
+	
+	var elMenu = document.getElementById("menucontainer");
+	
+	if (elMenu){
+		new MainMenuWidget(elMenu);
+	}
 	
 });

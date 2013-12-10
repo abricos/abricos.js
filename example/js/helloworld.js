@@ -32,9 +32,7 @@ A.Language.add('ru', MODNAME, COMPNAME, {
 
 A.CSS.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold; color: red;}");
 
-A.add(MODNAME, COMPNAME, function(NS){
-	
-	var buildTemplate = this.buildTemplate;
+A.add(MODNAME, COMPNAME, function(NS, CMP){
 	
 	var HelloWorldWidget = function(elContainer){
 		this.init(elContainer);
@@ -42,7 +40,7 @@ A.add(MODNAME, COMPNAME, function(NS){
 	HelloWorldWidget.prototype = {
 		init: function(elContainer){
 			
-			var TM = buildTemplate('widget');
+			var TM = CMP.template.build('widget');
 			
 			elContainer.innerHTML = TM.replace('widget');
 			

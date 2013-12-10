@@ -9,12 +9,13 @@
 	<link href="assets/css/pure-min.css" rel="stylesheet">
 	<link href="assets/css/main.css" rel="stylesheet" >
 	<link href="assets/css/baby-blue.css" rel="stylesheet" >
-	
-	<script src="assets/js/rainbow-custom.js"></script>
-	
+
 	<script src="../src/abricos.js"></script>
-	<script src="../src/abricos-examples.js"></script>
+	<script src="assets/js/abricosjs-examples.js"></script>
+	<script src="assets/js/rainbow-custom.min.js"></script>
+	
 	<script src="js/helloworld.js"></script>
+	
 </head>
 <body>
 
@@ -23,15 +24,10 @@
 		<div class="pure-u" id="menu">
 		    <div class="pure-menu pure-menu-open">
 		        <a class="pure-menu-heading" href="index.html">Examples</a>
-		        <ul>
+		        <ul id="menucontainer">
 		            <li class="pure-menu-selected ">
 		                <a href="index.html">Template in JS</a>
 		            </li>
-		
-		            <li>
-		                <a href="index.html">Example 2</a>
-		            </li>
-		
 		            <li class="menu-item-divided">
 		                <a href="http://abricos.org">Abricos Platform</a>
 		            </li>
@@ -60,11 +56,13 @@
 			</div>
 			
 			<script>
+			
+				Abricos.use(function(){
+					var el = document.getElementById('helloworld');
+					new Abricos.mod.example.HelloWorldWidget(el);
+				});
 		
-		var el = document.getElementById('helloworld');
-		new Abricos.mod.example.HelloWorldWidget(el);
-		
-		</script>
+			</script>
 		</div>
 		
 		<div class="legal pure-g-r">

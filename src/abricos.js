@@ -22,11 +22,14 @@ var _initAbricos = function(){
 		L = Y.Lang,
 		SLICE = Array.prototype.slice;
 
+	A._loading = true;
+	
 	A.config = Y.merge({
 		'lang': 'en'
 	}, Abricos_Config || {});
 	
 	A.Env = {
+		'DOMReady': false,
 		'mods': {},
 		'temps': {},
 		'langs': {},
@@ -398,7 +401,7 @@ var _initAbricos = function(){
 			return id;
 		},
 		get: function(tnm){
-			return this.data[tnm] || "";
+			return (this.data[tnm] || "");
 		},
 		replace: function(tnm, o){
 			var t = this.get(tnm),
@@ -472,12 +475,80 @@ var _initAbricos = function(){
 			this.name = cfg['compName'];
 			
 			this.entryPoint = cfg['entryPoint'];
+			
+			this.namespace = A.mod[this.moduleName] || (A.mod[this.moduleName] = {});
+			
+			this.template = new A.ComponentTemplate(this);
+			
+			this.language = new A.ComponentLanguage(this);
 
 			// TODO: necessary to implement
 			this.requires = {};
 		}
 	};
 	A.Component = Component;
+	
+	var ComponentTemplate = function(component){
+		this.init(component);
+	};
+	ComponentTemplate.prototype = {
+		init: function(component){
+			this.component = component;
+		},
+		getItems: function(){
+			var comp = this.component,
+				ts = T.get(comp.moduleName, comp.name);
+			
+			return L.isValue ? ts : {};
+		},
+		get: function(name){
+			var ts = this.getItems();
+			return ts[name] || null; 
+		},
+		build: function(){
+			var args = SLICE.call(arguments, 0),
+				comp = this.component,
+				mnm = comp.moduleName,
+				cnm = comp.name,
+				tNames = "";
+			
+			if (L.isObject(args[0])){
+				// TODO: bind TM functions
+				
+				if (L.isString(args[1])){
+					tNames = args[1];
+				}
+			}
+			if (L.isString(args[0])){
+				tNames = args[0];
+			}
+			
+			if (!comp._cssApplied){
+				comp._cssApplied = true;
+				
+				// applying CSS on the first call buildTemplate
+				CSS.apply(mnm, cnm);
+			}
+			
+			return T.build(mnm, cnm, tNames);
+		}
+	};
+	A.ComponentTemplate = ComponentTemplate;
+	
+	var ComponentLanguage = function(component){
+		this.init(component);
+	};
+	ComponentLanguage.prototype = {
+		init: function(component){
+			this.component = component;
+		},
+		get: function(key, cfg){
+			var comp = this.component;
+			
+			return LNG.get('mod.'+comp.moduleName+'.'+comp.name+'.'+key);
+		}
+	};
+	A.ComponentLanguage = ComponentLanguage;
 	
     /**
      * The Abricos global namespace object
@@ -503,6 +574,41 @@ var _initAbricos = function(){
 
 		return !!(mods[mnm][cnm]);
 	};
+
+	var stackUse = [];
+	
+	A.use = function(){
+        var args = SLICE.call(arguments, 0),
+        	callback = args[args.length - 1];
+        
+        if (L.isFunction(callback)){
+        	args.pop();
+        }else{
+        	callback = null;
+        }
+
+    	stackUse[stackUse.length] = [args, callback];
+
+        if (!A._loading){
+        	A._use();
+        }
+	};
+	
+	A._use = function(){
+		if (stackUse.length == 0){ return; }
+
+		var su = stackUse.pop(),	
+			args = su[0],
+			callback = su[1];
+
+		if (L.isFunction(callback)){
+			callback();
+		}
+		A._use();
+	};
+
+	
+	var stackModsToInit = [];
 	
 	A.add = function(mnm, cnm, o){
 		var mods = A.Env.mods;
@@ -510,7 +616,7 @@ var _initAbricos = function(){
 		if (A.exists(mnm, cnm)){
 			throw new Error("Component is already registered: module="+mnm+", component="+cnm);
 		}
-
+		
 		var comp;
 
 		if (o instanceof Component){
@@ -527,43 +633,46 @@ var _initAbricos = function(){
 		
 		comp.moduleName = mnm;
 		comp.name = cnm;
-		comp.buildTemplate = function(){
-			
-			var args = SLICE.call(arguments, 0);
-			
-			var tNames = "";
-			
-			if (L.isObject(args[0])){
-				// TODO: bind TM functions
-				
-				if (L.isString(args[1])){
-					tNames = args[1];
-				}
-			}
-			if (L.isString(args[0])){
-				tNames = args[0];
-			}
-			
-			if (!comp._cssApplied){
-				comp._cssApplied = true;
-				
-				// applying CSS on the first call buildTemplate
-				CSS.apply(comp.moduleName, comp.name);
-			}
-			
-			return T.build(comp.moduleName, comp.name, tNames);
-		};
-		
 		
 		var m = mods[mnm] || (mods[mnm] = {});
 		m[cnm] = comp;
-		
-		if (L.isFunction(comp.entryPoint)){
-			var NS = A.mod[mnm] || (A.mod[mnm] = {});
-			
-			comp.entryPoint(NS);
+
+		stackModsToInit[stackModsToInit.length] = comp;
+
+		if (!A._loading){
+			A._add();
 		}
 	};
+	
+	A._add = function(){
+		if (stackModsToInit.length == 0){ return; }
+		
+		var comp = stackModsToInit.pop();
+
+		if (L.isFunction(comp.entryPoint)){
+			
+			var mnm = comp.moduleName, 
+				NS = A.mod[mnm] || (A.mod[mnm] = {});
+			
+			comp.entryPoint(NS, comp);
+		}
+		A._add();
+	};
+	
+	var onDOMReady = function(){
+		A._loading = false;
+		
+		A._add();
+		A._use();
+	};
+	
+	(function() {
+	    if (document.addEventListener) {
+	        return document.addEventListener('DOMContentLoaded', onDOMReady, false);
+	    }
+	    window.attachEvent('onload', onDOMReady);
+	}) ();
+	
 };
 
 
