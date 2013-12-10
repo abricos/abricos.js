@@ -44,14 +44,16 @@ A.add(MODNAME, COMPNAME, function(NS, CMP){
 			
 			elContainer.innerHTML = TM.replace('widget');
 			
-			var elBtnSet = TM.gel('widget.btnSet');
+			var elTitle = TM.gel('widget.title'),
+				elBtnSet = TM.gel('widget.btnSet'),
+				elBtnClear = TM.gel('widget.btnClear');
+			
 			elBtnSet.onclick = function(){
-				TM.gel('widget.title').className = 'helloWorldBold';
+				elTitle.className = 'helloWorldBold';
 			};
 
-			var elBtnClear = TM.gel('widget.btnClear');
 			elBtnClear.onclick = function(){
-				TM.gel('widget.title').className = '';
+				elTitle.className = '';
 			};
 			
 		}

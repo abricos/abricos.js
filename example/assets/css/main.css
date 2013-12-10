@@ -460,3 +460,15 @@ a.pure-button-primary {
 	font-size: 15px;
  	margin-bottom: 2em;	
 }
+
+#lang-change-container {
+	position: absolute;
+	right: 20px;
+	top: 5px;
+}
+.lang-ru .lang-en,
+.lang-en .lang-ru {
+	display: none;
+}
+
+}
