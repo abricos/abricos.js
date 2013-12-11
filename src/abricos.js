@@ -271,29 +271,36 @@ var _initAbricos = function(){
 	};
 	
 	T.parse = function(source){
-		var ret = {},
+		if (!L.isString(source)){ return {}; }
+		
+		var t = {},
 			sre = '<!--{([a-zA-Z0-9_-]+)}-->',
 			re = new RegExp(sre, 'g'),
 			lre = new RegExp(sre),
 			ma = source.match(re),
-			lma, pos;
+			i, lma, pos, tnm;
 			
-		for (var i=ma.length-1;i>=0;i--){
+		for (i=ma.length-1;i>=0;i--){
 			lma = ma[i].match(lre);
+			tnm = lma[1];
+			pos = source.indexOf(lma[0]);
+			
+			t[tnm] = source.substring(pos+lma[0].length);
+			source = source.substring(0, pos-1);
 		}
-		
-		return ret;
+		return t;
 	};
 	
 	// T.add(oSeed, sModName, sCompName)
 	// T.add(sTElName, sTElBody, sModName, sCompName);
 	// T.add(sSeed, sModName, sCompName)
+	// T.add('#htmlElId', sModName, sCompName);
 	T.add = function(){
 
 		var args = SLICE.call(arguments, 0),
 			alen = args.length, 
-			mnm, // module name 
-			cnm, // component name
+			mnm = CONF['defModName'], // module name 
+			cnm = CONF['defCompName'], // component name
 			seed,
 			isSetMC = false;
 		
@@ -301,6 +308,17 @@ var _initAbricos = function(){
 			isSetMC = alen == 3;
 			seed = args[0];
 		}else if (L.isString(args[0])){
+			var source = L.trim(args[0]);
+			
+			if (source.indexOf('#') === 0){
+				var el = document.getElementById(source.substring(1));
+				if (!el){
+					source = "";
+				}else{
+					source = el.innerHTML;
+				}
+			}
+			
 			if (alen==2 || alen==4){// T.add(sTElName, sTElBody, sModName, sCompName);
 				isSetMC = alen == 4;
 
@@ -308,7 +326,7 @@ var _initAbricos = function(){
 			}else if (alen==1 || alen==3){// T.add(sSeed, sModName, sCompName)
 				isSetMC = alen == 3;
 				
-				seed = T.parse(args[0]);
+				seed = T.parse(source);
 			}
 		}
 		
@@ -317,9 +335,6 @@ var _initAbricos = function(){
 			cnm = args[alen-1];
 		}
 		
-		mnm = mnm || CONF['defModName'];
-		cnm = cnm || CONF['defCompName'];
-				
 		var t = A.Env.temps,
 			tm = t[mnm] || (t[mnm] = {}),
 			tmc = tm[cnm] || (tm[cnm] = {});
@@ -335,6 +350,8 @@ var _initAbricos = function(){
 		}else if (L.isString(seed)){
 			
 		}
+		
+		return T.get(mnm, cnm);
 	};
 	
 	T.build = function(names, cfg){

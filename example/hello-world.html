@@ -22,18 +22,11 @@
 	<input id='{i#btnSet}' type='button' value='{##button.set}'/>
 	<input id='{i#btnClear}' type='button' value='{##button.clear}'/>
 </div>
-
-<!--{testrow}-->
-<div id='{i#id}'>
- <h2>Hello World using Abricos.js </h2>
- <h2>Hello World using Abricos.js </h2>
-</div>
 </script>
 
 <script>
 
-var source = document.getElementById('abricosjs-template').innerHTML;
-Abricos.Template.add(source);
+Abricos.Template.add('#abricosjs-template');
 
 </script>
 	
