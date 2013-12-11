@@ -24,8 +24,10 @@ var _initAbricos = function(){
 
 	A._loading = true;
 	
-	A.config = Y.merge({
-		'lang': 'en'
+	var CONF = A.config = Y.merge({
+		'lang': 'en',
+		'defModName': '_module_',
+		'defCompName': '_component_'
 	}, Abricos_Config || {});
 	
 	A.Env = {
@@ -258,12 +260,65 @@ var _initAbricos = function(){
 		return null;
 	};
 	
-	T.add = function(mnm, cnm, seed){
+	T.parse = function(source){
+		var ret = {},
+			sre = '<!--{([a-zA-Z0-9_-]+)}-->',
+			re = new RegExp(sre, 'g'),
+			lre = new RegExp(sre),
+			ma = source.match(re),
+			lma, pos;
+			
+		for (var i=ma.length-1;i>=0;i--){
+			lma = ma[i].match(lre);
+			
+			console.log(lma);
+			
+		}
+		
+		return ret;
+	};
+	
+	// T.add(oSeed, sModName, sCompName)
+	// T.add(sTElName, sTElBody, sModName, sCompName);
+	// T.add(sSeed, sModName, sCompName)
+	T.add = function(){
+
+		var args = SLICE.call(arguments, 0),
+			alen = args.length, 
+			mnm, // module name 
+			cnm, // component name
+			seed,
+			isSetMC = false;
+		
+		if (L.isObject(args[0])){ // T.add(oSeed, sModName, sCompName)
+			isSetMC = alen == 3;
+			seed = args[0];
+		}else if (L.isString(args[0])){
+			if (alen==2 || alen==4){// T.add(sTElName, sTElBody, sModName, sCompName);
+				isSetMC = alen == 4;
+
+				
+			}else if (alen==1 || alen==3){// T.add(sSeed, sModName, sCompName)
+				isSetMC = alen == 3;
+				
+				seed = T.parse(args[0]);
+			}
+		}
+		
+		if (isSetMC){
+			mnm = args[alen-1];
+			cnm = args[alen-2];
+		}
+		
+		mnm = mnm || CONF['defModName'];
+		cnm = cnm || CONF['defCompName'];
+				
 		var t = A.Env.temps,
 			tm = t[mnm] || (t[mnm] = {}),
 			tmc = tm[cnm] || (tm[cnm] = {});
 
 		if (L.isObject(seed)){
+			// Template.add({...}, modName, compName)
 			for (var tName in seed){
 				
 				if (!L.isString(seed[tName])){ continue; }
@@ -271,7 +326,7 @@ var _initAbricos = function(){
 				tmc[tName] = seed[tName];
 			}
 		}else if (L.isString(seed)){
-			// TODO: Abricos.template.add(modName, compName, tplName, tplValue)
+			
 		}
 	};
 	
@@ -311,20 +366,7 @@ var _initAbricos = function(){
 				ct[name] = t[name]; 
 			}
 		}
-		
-		// overload existing template elements
-		/*
-		if (L.isObject(override)){
-			// TODO: need to implement by the technique Abricos Platform
-			
-			var tos = override.template.source;
-			for (var name in ct){
-				if (tos[name]){
-					ct[name] = tos[name];
-				}
-			}
-		}
-		/**/
+	
 		return new A.TemplateManager(ct, cfg);
 	};
 	

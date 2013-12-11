@@ -8,13 +8,12 @@
 	
 	<link href="assets/css/pure-min.css" rel="stylesheet">
 	<link href="assets/css/main.css" rel="stylesheet" >
+	<link href="assets/css/home.css" rel="stylesheet" >
 	<link href="assets/css/baby-blue.css" rel="stylesheet" >
 
 	<script src="../src/abricos.js"></script>
 	<script src="assets/js/abricosjs-examples.js"></script>
 	<script src="assets/js/rainbow-custom.min.js"></script>
-	
-	<script src="js/helloworld.js"></script>
 	
 </head>
 <body class="lang-en">
@@ -26,53 +25,40 @@
 	 <div class="pure-u-1" id="main">
 
 		<div id="lang-change-container"></div>
-	
-		<div class="header">
-		    <h1>Simple Widget</h1>
-		  
-		    <h2>Creating a simple widget.</h2>
-		</div>
-		
+	 
+	 		<div class="hero">
+			    <div class="hero-titles">
+			        <h1>Abricos.js</h1>
+			        <h2>
+			        	<span class="lang-ru">
+			        		Демонстрация возможностей Abricos.js
+			        	</span>
+			        	<span class="lang-en">
+			        		Demonstration of the possibilities Abricos.js
+			        	</span>
+			        </h2>
+			    </div>
+			
+			
+			    <div class="hero-cta">
+
+				    <pre class="snippet" data-language="html"><code>&lt;script src=&quot;abricos.js&quot;&gt;&lt;/script&gt;</code></pre>
+			
+			        <p>
+			            <a href="hello-world.html" class="pure-button pure-button-cta">Hello World!</a>
+			            <a href="https://github.com/abricos/abricos.js" class="pure-button pure-button-secondary">View on GitHub</a>
+			        </p>
+			    </div>
+			</div>
+			
 		<div class="content">
-			<div class="lang-ru">
-				<p>
-					Данный пример демонстрирует использование простого виджета
-					<code>HelloWorldWidget</code>
-					<br>
-					Попробуйте нажать на кнопки, чтобы сменить стиль надписи "Привет Мир!"
-				</p>
-			</div>
-			<div class="lang-en">
-				<p>
-					This example demonstrates the use of a simple widget <code>HelloWorldWidget</code>
-					<br>
-					Try clicking on the buttons to change the style of the inscription "Hello World!"
-				</p>
-			</div>
 			
-			<div class="example">
-			
-				<div id="helloworld">Loading widget. Please, wait...</div>
-				
-			</div>
-			
-			<script>
-			
-				Abricos.use(function(){
-					var el = document.getElementById('helloworld');
-					new Abricos.mod.example.HelloWorldWidget(el);
-				});
-		
-			</script>
 		</div>
 		
 		<div class="legal pure-g-r" id="footer-container">
 		    <div class="pure-u-1-12">
-		        <div class="l-box">
-		        	Loading...
-		        </div>
+		        <div class="l-box">Loading...</div>
 		    </div>
-			
 		</div>
 		  
 	</div>

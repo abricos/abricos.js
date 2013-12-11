@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>Hello World / Abricos.js Examples</title>
+	
+	<link href="assets/css/pure-min.css" rel="stylesheet">
+	<link href="assets/css/main.css" rel="stylesheet" >
+	<link href="assets/css/baby-blue.css" rel="stylesheet" >
+
+	<script src="../src/abricos.js"></script>
+	<script src="assets/js/abricosjs-examples.js"></script>
+	<script src="assets/js/rainbow-custom.min.js"></script>
+
+
+<script id="abricosjs-template" type="text/x-abricosjs-template">
+<!--{mywidget}-->
+<div id='{i#id}'>
+	<span id='{i#title}'>{##title}</span> <br />
+	<input id='{i#btnSet}' type='button' value='{##button.set}'/>
+	<input id='{i#btnClear}' type='button' value='{##button.clear}'/>
+</div>
+
+<!--{testrow}-->
+<div id='{i#id}'>
+ <h2>Hello World using Abricos.js </h2>
+ <h2>Hello World using Abricos.js </h2>
+</div>
+</script>
+
+<script>
+
+var source = document.getElementById('abricosjs-template').innerHTML;
+Abricos.Template.add(source);
+
+</script>
+	
+</head>
+<body class="lang-en">
+
+<div class="pure-g-r" id="layout">
+
+	<div class="pure-u" id="menu">Loading...</div>
+	
+	 <div class="pure-u-1" id="main">
+
+		<div id="lang-change-container"></div>
+	
+		<div class="header">
+		    <h1>Example</h1>
+		  
+		    <h2>Hello World using Abricos.js </h2>
+		</div>
+		
+		<div class="content">
+			<p>
+				As a developer, when you want to start with a new development framework you will try to write the "Hello World" and see how easy it is. 
+				Well, with abricos.js, it's pretty easy.
+				<br />
+				This guide shows you how to write the very basic Hello World example.
+			</p>
+			
+			<div class="example">
+			
+				<div id="helloworld">Loading widget. Please, wait...</div>
+				
+			</div>
+			
+		</div>
+		
+		<div class="legal pure-g-r" id="footer-container">
+		    <div class="pure-u-1-12">
+		        <div class="l-box">
+		        	Loading...
+		        </div>
+		    </div>
+			
+		</div>
+		  
+	</div>
+</div>
+</body>
+</html>

@@ -2,15 +2,15 @@ var A = Abricos,
 	MODNAME = 'example',
 	COMPNAME = 'helloworld';
 
-A.Template.add(MODNAME, COMPNAME, {
+A.Template.add({
 	"widget": "<div id='{i#id}'>" +
 		"<span id='{i#title}'>{##title}</span> <br />" +
 		"<input id='{i#btnSet}' type='button' value='{##button.set}'/>" +
 		"<input id='{i#btnClear}' type='button' value='{##button.clear}'/>" +
 		"</div>"
-});
+}, MODNAME, COMPNAME);
 
-A.Language.add('en', MODNAME, COMPNAME, {
+A.Language.add('en', {
 	'widget': {
 		'title': 'Hello World!',
 		'button': {
@@ -18,9 +18,9 @@ A.Language.add('en', MODNAME, COMPNAME, {
 			'clear': 'Clear Style'
 		}
 	}
-});
+}, MODNAME, COMPNAME);
 
-A.Language.add('ru', MODNAME, COMPNAME, {
+A.Language.add('ru', {
 	'widget': {
 		'title': 'Привет мир!',
 		'button': {
@@ -28,9 +28,9 @@ A.Language.add('ru', MODNAME, COMPNAME, {
 			'clear': 'Очистить стиль'
 		}
 	}
-});
+}, MODNAME, COMPNAME);
 
-A.CSS.add(MODNAME, COMPNAME, ".helloWorldBold {font-weight: bold; color: red;}");
+A.CSS.add(".helloWorldBold {font-weight: bold; color: red;}", MODNAME, COMPNAME);
 
 A.add(MODNAME, COMPNAME, function(NS, CMP){
 	

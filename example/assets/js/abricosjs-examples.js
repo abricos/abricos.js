@@ -2,7 +2,7 @@ var A = Abricos,
 	MODNAME = 'abricos.js',
 	COMPNAME = 'exmaples';
 
-A.Template.add(MODNAME, COMPNAME, {
+A.Template.add({
 	"menu": "<div class='pure-menu pure-menu-open'>"+
     	"<a class='pure-menu-heading' href='index.html'>"+
     	"<span class='lang-en'>Examples</span>"+
@@ -49,7 +49,7 @@ A.Template.add(MODNAME, COMPNAME, {
 		"	</div>"+
 		"</div>"
 		
-});
+}, MODNAME, COMPNAME);
 
 var PAGES = [{
 	'nm': 'index',
