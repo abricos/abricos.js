@@ -252,6 +252,16 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	T.get = function(mnm, cnm){
+		
+		var args = SLICE.call(arguments, 0);
+		if (L.isObject(args[0])){
+			var cfg = args[0];
+			mnm = cfg.modName;
+			cnm = cfg.compName;
+		}
+		mnm = mnm || CONF['defModName'];
+		cnm = cnm || CONF['defCompName'];
+
 		var t = A.Env.temps;
 		
 		if (t[mnm] && t[mnm][cnm]){
@@ -270,9 +280,6 @@ var _initAbricos = function(){
 			
 		for (var i=ma.length-1;i>=0;i--){
 			lma = ma[i].match(lre);
-			
-			console.log(lma);
-			
 		}
 		
 		return ret;
@@ -306,8 +313,8 @@ var _initAbricos = function(){
 		}
 		
 		if (isSetMC){
-			mnm = args[alen-1];
-			cnm = args[alen-2];
+			mnm = args[alen-2];
+			cnm = args[alen-1];
 		}
 		
 		mnm = mnm || CONF['defModName'];
@@ -330,15 +337,14 @@ var _initAbricos = function(){
 		}
 	};
 	
-	T.build = function(mnm, cnm, names, cfg){
+	T.build = function(names, cfg){
 		cfg = Y.merge({
-			'modName': mnm,
-			'compName': cnm,
+			'modName': CONF.defModName,
+			'compName': CONF.defCompName,
 			'defTName': null
 		}, cfg || {});
-
 		
-		var t = T.get(mnm, cnm);
+		var t = T.get(cfg);
 		if (!L.isObject(t)){
 			t = {};
 		}
@@ -388,7 +394,6 @@ var _initAbricos = function(){
 	
 	TemplateManager.prototype = {
 		init: function(t, cfg){
-			
 			this.cfg = cfg;
 			
 			// map unique identifiers in the template
@@ -572,7 +577,10 @@ var _initAbricos = function(){
 				CSS.apply(mnm, cnm);
 			}
 			
-			return T.build(mnm, cnm, tNames);
+			return T.build(tNames, {
+				'modName': mnm, 
+				'compName': cnm 
+			});
 		}
 	};
 	A.ComponentTemplate = ComponentTemplate;
