@@ -248,7 +248,6 @@ var _initAbricos = function(){
 		}
 		
 		if (aln >= 3){
-		
 			cfg = Y.merge(cfg, {
 				'modName': args[1],
 				'compName': args[2]
@@ -438,6 +437,14 @@ var _initAbricos = function(){
 			for (var name in t){
 				ct[name] = t[name]; 
 			}
+		}
+		
+		var css = CSS.get(cfg.modName, cfg.compName);
+		if (L.isValue(css) && !css._cssApplied){
+			css._cssApplied = true;
+			
+			// applying CSS on the first call buildTemplate
+			CSS.apply(cfg.modName, cfg.compName);
 		}
 	
 		return new A.TemplateManager(ct, cfg);
@@ -635,13 +642,6 @@ var _initAbricos = function(){
 			}
 			if (L.isString(args[0])){
 				tNames = args[0];
-			}
-			
-			if (!comp._cssApplied){
-				comp._cssApplied = true;
-				
-				// applying CSS on the first call buildTemplate
-				CSS.apply(mnm, cnm);
 			}
 			
 			return T.build(tNames, {

@@ -52,7 +52,10 @@ A.Template.add({
 }, MODNAME, COMPNAME);
 
 var PAGES = [{
-	'nm': 'index',
+	'nm': 'hello-world',
+	'tl': 'Hello World'
+}, {
+	'nm': 'simple-widget',
 	'tl': 'Simple Widget'
 }, {
 	'nm': 'abricos.org',
