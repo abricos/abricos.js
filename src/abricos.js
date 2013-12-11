@@ -71,20 +71,36 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	LNG.add = function(lang, o){
-		var d = A.Env.langs,
+
+		var cfg = {
+				'modName': CONF.defModName,
+				'compName': CONF.defCompName,
+				'inRoot': false // True - ignore component namespace (mod.modname.compname)
+			},
+			d = A.Env.langs,
 			dLang = d[lang] || (d[lang] = {}),
 			args = SLICE.call(arguments, 0),
 			aln = args.length;
 		
-		if (aln == 2){ // Abricos.Language.add('ru', {...})
+		if (aln > 2 && L.isObject(args[aln-1])){
+			cfg = L.merge(cfg, args[aln-1]);
+		}
+		
+		if (cfg.inRoot){
 			cloneLang(o, dLang);
-		}else if (aln == 4){ // Abricos.Language.add('ru', 'mymod', 'mycomp', {...})
-			var mnm = args[1], cnm = args[2], o = args[3],
+		}else{
+			if (aln >= 4){
+				cfg = Y.merge(cfg, {
+					'modName': args[2],
+					'compName': args[3]
+				});
+			}
+			var mnm = cfg.modName, cnm = cfg.compName,
 				no = {'mod': {}};
 			
 			no['mod'][mnm] = {};
 			no['mod'][mnm][cnm] = o;
-
+	
 			cloneLang(no, dLang);
 		}
 	};
@@ -207,11 +223,45 @@ var _initAbricos = function(){
 		return null;
 	};
 	
-	CSS.add = function(mnm, cnm, seed){
-		var t = A.Env.css,
-			tm = t[mnm] || (t[mnm] = {});
+	CSS.add = function(seed, mnm, cnm, cfg){
+		
+		if (!L.isString(seed)){ return; }
+		
+		var cfg = {
+				'modName': CONF.defModName,
+				'compName': CONF.defCompName
+			},
+			args = SLICE.call(arguments, 0),
+			aln = args.length,
+			css = A.Env.css;
+		
+		var source = L.trim(args[0]);
+		
+		if (source.indexOf('#') === 0){
+			var el = document.getElementById(source.substring(1));
+			if (!el){
+				source = "";
+			}else{
+				source = el.innerHTML;
+			}
+			seed = source;
+		}
+		
+		if (aln >= 3){
+		
+			cfg = Y.merge(cfg, {
+				'modName': args[1],
+				'compName': args[2]
+			});
+		}
+		
+		mnm = cfg.modName;
+		cnm = cfg.compName;			
 
-		tm[cnm] = seed;
+		var cssm = css[mnm] || (css[mnm] = {});
+		cssm[cnm] = seed;
+		
+		return seed;
 	};
 	
 	CSS.apply = function(mnm, cnm){

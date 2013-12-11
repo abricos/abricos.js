@@ -24,9 +24,30 @@
 </div>
 </script>
 
+<script id="abricosjs-style" type="text/x-abricosjs-style">
+.helloWorldBold {
+	font-weight: bold; 
+	color: red;
+}
+</script>
+
 <script>
 
 Abricos.Template.add('#abricosjs-template');
+
+Abricos.Language.add('en', {
+	'widget': {
+		'title': 'Hello World!',
+		'button': {
+			'set': 'Set Style',
+			'clear': 'Clear Style'
+		}
+	}
+});
+
+A.CSS.add('#abricosjs-style');
+
+
 
 </script>
 	
