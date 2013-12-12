@@ -14,7 +14,6 @@
 	<script src="assets/js/abricosjs-examples.js"></script>
 	<script src="assets/js/rainbow-custom.min.js"></script>
 
-
 <script id="abricosjs-template" type="text/x-abricosjs-template">
 <!--{mywidget}-->
 <div id='{i#id}'>
@@ -32,8 +31,13 @@
 </script>
 
 <script>
-
 Abricos.use(function(){
+
+	// Add template
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	Abricos.Template.add('#abricosjs-template');
+
+	// Add phrases of language
 	Abricos.Language.add('en', {
 		'mywidget': {
 			'title': 'Hello World!',
@@ -44,33 +48,36 @@ Abricos.use(function(){
 		}
 	});
 
+	// Add CSS Style
+	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
 	A.CSS.add('#abricosjs-style');
 
-	Abricos.Template.add('#abricosjs-template');
+	// Create a template manager
+	var tm = Abricos.Template.build();
 
-	var TM = Abricos.Template.build();
-
+	// Get a container
 	var elContainer = document.getElementById('helloworld');
-	elContainer.innerHTML = TM.replace('mywidget');
+	
+	// Add HTML code in the widget container
+	elContainer.innerHTML = tm.replace('mywidget');
 
 	
-	// NOTE: element name of the template can not be used
-	// TM.gel('title') => TM.gel('mywidget.title')
-	var elTitle = TM.gel('mywidget.title')
-		elBtnSet = TM.gel('btnSet'),
-		elBtnClear = TM.gel('btnClear');
+	// Get DOM elements used the identifier from the template
+	// NOTE: TM.gel('title') equal TM.gel('mywidget.title')
+	var elTitle = tm.gel('mywidget.title')
+		elBtnSet = tm.gel('btnSet'),
+		elBtnClear = tm.gel('btnClear');
 	
+	// Set the style by clicking on the button
 	elBtnSet.onclick = function(){
 		elTitle.className = 'helloWorldBold';
 	};
 	
+	// Clear the style by clicking on the button
 	elBtnClear.onclick = function(){
 		elTitle.className = '';
 	};
-
 });
-
-
 </script>
 	
 </head>
@@ -92,17 +99,193 @@ Abricos.use(function(){
 		
 		<div class="content">
 			<p>
-				As a developer, when you want to start with a new development framework you will try to write the "Hello World" and see how easy it is. 
-				Well, with abricos.js, it's pretty easy.
+				As a developer, when you want to start with a new development framework 
+				you will try to write the "Hello World" and see how easy it is. Well, 
+				with abricos.js, it's pretty easy.
 				<br />
 				This guide shows you how to write the very basic Hello World example.
 			</p>
 			
 			<div class="example">
-			
-				<div id="helloworld">Loading widget. Please, wait...</div>
-				
+				<div id="helloworld">Loading...</div>
 			</div>
+			
+
+			<h3 class="content-subhead">Framework</h3>
+			
+			<p>
+				Include <code>abricos.js</code> on the page if you haven't already:
+			</p>
+			<pre class="snippet" data-language="html"><code>&lt;script src=&quot;../src/abricos.js&quot;&gt;&lt;/script&gt;</code></pre>
+
+			
+			<h3 class="content-subhead">HTML</h3>
+			<p>
+				First we'll create the HTML shell for our widget.
+			</p>
+			
+			<pre class="snippet" data-language="html"><code>&lt;div id=&quot;helloworld&quot;&gt;Loading...&lt;/div&gt;</code></pre>
+			
+			<p>
+				We'll also add some invisible HTML templates to the page, which will 
+				be used to render our views later. 
+				<br />
+				By putting this template HTML inside a <code>&lt;script&gt;</code> element 
+				with <code>type="text/x-abricosjs-template"</code>, we ensure that the browser 
+				will ignore it because it doesn't recognize the <code>text/x-abricosjs-template</code> type. 
+				We can then retrieve the contents of the element to get a convenient template string.
+				<br />
+				This is generally a more maintainable way of embedding templates than storing them 
+				in JavaScript strings, but there's no requirement that you use this technique.
+			</p>
+
+			<pre class="snippet" data-language="html"><code>&lt;script id=&quot;abricosjs-template&quot; type=&quot;text/x-abricosjs-template&quot;&gt;
+&lt;!--{mywidget}--&gt;
+&lt;div id='{i#id}'&gt;
+	&lt;span id='{i#title}'&gt;{##title}&lt;/span&gt; &lt;br /&gt;
+	&lt;input id='{i#btnSet}' type='button' value='{##button.set}'/&gt;
+	&lt;input id='{i#btnClear}' type='button' value='{##button.clear}'/&gt;
+&lt;/div&gt;
+&lt;/script&gt;</code></pre>
+
+			
+			<h3 class="content-subhead">CSS</h3>
+			<p>
+				We'll also add some invisible CSS Style to the page, which will 
+				be used to render our views later.
+			</p>
+
+			<pre class="snippet" data-language="html"><code>&lt;script id=&quot;abricosjs-style&quot; type=&quot;text/x-abricosjs-style&quot;&gt;
+.helloWorldBold {
+	font-weight: bold; 
+	color: red;
+}
+&lt;/script&gt;</code></pre>
+			
+		
+			<h3 class="content-subhead">JavaScript</h3>
+			<pre class="snippet" data-language="js"><code>&lt;script&gt;
+Abricos.use(function(){
+
+	// Add template
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	Abricos.Template.add('#abricosjs-template');
+
+	// Add phrases of language
+	Abricos.Language.add('en', {
+		'mywidget': {
+			'title': 'Hello World!',
+			'button': {
+				'set': 'Set Style',
+				'clear': 'Clear Style'
+			}
+		}
+	});
+
+	// Add CSS Style
+	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
+	A.CSS.add('#abricosjs-style');
+
+	// Create a template manager
+	var tm = Abricos.Template.build();
+
+	// Get a container
+	var elContainer = document.getElementById('helloworld');
+	
+	// Add HTML code in the widget container
+	elContainer.innerHTML = tm.replace('mywidget');
+
+	
+	// Get DOM elements used the identifier from the template
+	// NOTE: TM.gel('title') equal TM.gel('mywidget.title')
+	var elTitle = tm.gel('mywidget.title')
+		elBtnSet = tm.gel('btnSet'),
+		elBtnClear = tm.gel('btnClear');
+	
+	// Set the style by clicking on the button
+	elBtnSet.onclick = function(){
+		elTitle.className = 'helloWorldBold';
+	};
+	
+	// Clear the style by clicking on the button
+	elBtnClear.onclick = function(){
+		elTitle.className = '';
+	};
+});
+&lt;/script&gt;</code></pre>
+
+
+
+			<h3>Complete Example Source</h3>
+			<pre class="snippet" data-language="js"><code>&lt;script src=&quot;../src/abricos.js&quot;&gt;&lt;/script&gt;
+
+&lt;div id=&quot;helloworld&quot;&gt;Loading...&lt;/div&gt;
+
+&lt;script id=&quot;abricosjs-template&quot; type=&quot;text/x-abricosjs-template&quot;&gt;
+&lt;!--{mywidget}--&gt;
+&lt;div id='{i#id}'&gt;
+	&lt;span id='{i#title}'&gt;{##title}&lt;/span&gt; &lt;br /&gt;
+	&lt;input id='{i#btnSet}' type='button' value='{##button.set}'/&gt;
+	&lt;input id='{i#btnClear}' type='button' value='{##button.clear}'/&gt;
+&lt;/div&gt;
+&lt;/script&gt;
+
+&lt;script id=&quot;abricosjs-style&quot; type=&quot;text/x-abricosjs-style&quot;&gt;
+.helloWorldBold {
+	font-weight: bold; 
+	color: red;
+}
+&lt;/script&gt;
+
+&lt;script&gt;
+Abricos.use(function(){
+
+	// Add template
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	Abricos.Template.add('#abricosjs-template');
+
+	// Add phrases of language
+	Abricos.Language.add('en', {
+		'mywidget': {
+			'title': 'Hello World!',
+			'button': {
+				'set': 'Set Style',
+				'clear': 'Clear Style'
+			}
+		}
+	});
+
+	// Add CSS Style
+	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
+	A.CSS.add('#abricosjs-style');
+
+	// Create a template manager
+	var tm = Abricos.Template.build();
+
+	// Get a container
+	var elContainer = document.getElementById('helloworld');
+	
+	// Add HTML code in the widget container
+	elContainer.innerHTML = tm.replace('mywidget');
+
+	
+	// Get DOM elements used the identifier from the template
+	// NOTE: TM.gel('title') equal TM.gel('mywidget.title')
+	var elTitle = tm.gel('mywidget.title')
+		elBtnSet = tm.gel('btnSet'),
+		elBtnClear = tm.gel('btnClear');
+	
+	// Set the style by clicking on the button
+	elBtnSet.onclick = function(){
+		elTitle.className = 'helloWorldBold';
+	};
+	
+	// Clear the style by clicking on the button
+	elBtnClear.onclick = function(){
+		elTitle.className = '';
+	};
+});
+&lt;/script&gt;</code></pre>
 			
 		</div>
 		
