@@ -1,3 +1,5 @@
+(function(){
+	
 var A = Abricos, 
 	MODNAME = 'abricos.js',
 	COMPNAME = 'exmaples';
@@ -32,7 +34,7 @@ A.Template.add({
 		"</div>"+
 		"<div class='pure-u-1-5'>"+
 		"	<div class='l-box legal-logo'>"+
-		"	    <a href='http://abricos.org/'>"+
+		"	    <a href='http://abricosjs.org/'>"+
 		"	        <img src='assets/img/logo-footer.png' height='50' width='50'"+
 		"	             alt='Abricos logo'>"+
 		"	    </a>"+
@@ -132,3 +134,4 @@ A.add(MODNAME, COMPNAME, function(NS, CMP){
 	}
 	
 });
+})();
