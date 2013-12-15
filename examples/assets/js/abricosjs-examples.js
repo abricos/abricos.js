@@ -60,10 +60,17 @@ var PAGES = [{
 	'nm': 'simple-widget',
 	'tl': 'Simple Widget'
 }, {
-	'nm': 'abricos.org',
-	'tl': 'Abricos Platform',
-	'url': 'http://abricos.org',
+	'nm': 'multi-lang',
+	'tl': 'Multi-Language'
+}, {
+	'nm': 'abricosjs.org',
+	'tl': 'abricosjs.org',
+	'url': 'http://abricosjs.org',
 	'divided': true
+}, {
+	'nm': 'ru.abricosjs.org',
+	'tl': 'ru.abricosjs.org',
+	'url': 'http://ru.abricosjs.org',
 }];
 
 A.add(MODNAME, COMPNAME, function(NS, CMP){

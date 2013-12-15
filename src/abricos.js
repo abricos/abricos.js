@@ -151,12 +151,12 @@ var _initAbricos = function(){
 	LNG.fillText = function(s, cfg){
 
 		cfg = Y.merge({
-			'lang': 'en',
+			'lang': CONF.lang,
 			'modName': null,
 			'compName': null,
 			'tName': null
 		}, cfg || {});
-		
+
 		// replacement of long IDs {#...}
 		var exp = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),		
 			arr = s.match(exp);
@@ -166,7 +166,9 @@ var _initAbricos = function(){
 			for (i=0;i<arr.length;i++){
 				key = arr[i].replace(/[\{#\}]/g, '');
 				
-				ph =  LNG.get(key);
+				ph =  LNG.get(key, {
+					'lang': cfg.lang
+				});
 				s = s.replace(arr[i], ph);
 			}
 		}
@@ -187,7 +189,9 @@ var _initAbricos = function(){
 					key = 'mod.'+cfg['modName']+'.'+cfg['compName']+'.'
 						+cfg['tName']+'.'+key;
 
-					ph =  LNG.get(key);
+					ph =  LNG.get(key, {
+						'lang': cfg.lang
+					});
 					s = s.replace(arr[i], ph);
 				}
 			}
@@ -405,6 +409,7 @@ var _initAbricos = function(){
 	
 	T.build = function(names, cfg){
 		cfg = Y.merge({
+			'lang': CONF.lang,
 			'modName': CONF.defModName,
 			'compName': CONF.defCompName,
 			'defTName': null
@@ -458,6 +463,7 @@ var _initAbricos = function(){
 			'modName': null,
 			'compName': null,
 			'idPrefix': 'abricos_',
+			'lang': CONF.lang,
 			'defTName': null
 		}, cfg || {});
 		
@@ -468,6 +474,7 @@ var _initAbricos = function(){
 	
 	TemplateManager.prototype = {
 		init: function(t, cfg){
+		
 			this.cfg = cfg;
 			
 			// map unique identifiers in the template
@@ -628,26 +635,40 @@ var _initAbricos = function(){
 		},
 		build: function(){
 			var args = SLICE.call(arguments, 0),
+				alen = args.length,
 				comp = this.component,
 				mnm = comp.moduleName,
 				cnm = comp.name,
-				tNames = "";
-			
-			if (L.isObject(args[0])){
-				// TODO: bind TM functions
-				
-				if (L.isString(args[1])){
-					tNames = args[1];
-				}
+				tNames = "",
+				oBind = null,
+				cfg = {
+					'lang': CONF.lang
+				};
+
+
+			// CMP.template.build(oBind, sTNames [,(oCfg|null)]);
+			if (L.isObject(args[0]) && L.isString(args[0])){
+				oBind = args[0];
+				tNames = args[1];
 			}
+			
+			// CMP.template.build(sTNames [,(oCfg|null)]);
 			if (L.isString(args[0])){
 				tNames = args[0];
 			}
-			
-			return T.build(tNames, {
+
+			if (L.isObject(args[alen-1])){
+				cfg = args[alen-1];
+			}
+
+			// TODO: oBind - bind function
+
+			cfg = Y.merge(cfg, {
 				'modName': mnm, 
 				'compName': cnm 
 			});
+			
+			return T.build(tNames, cfg);
 		}
 	};
 	A.ComponentTemplate = ComponentTemplate;

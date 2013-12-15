@@ -29,9 +29,9 @@
 		<div id="lang-change-container"></div>
 	
 		<div class="header">
-		    <h1>Simple Widget</h1>
+		    <h1>Multi-Language</h1>
 		  
-		    <h2>Creating a simple widget.</h2>
+		    <h2>Creation of multilingual widgets.</h2>
 		</div>
 		
 		<div class="content">
@@ -53,17 +53,37 @@
 			
 			<div class="example">
 			
-				<div id="helloworld">Loading widget. Please, wait...</div>
+				<table style="width: 100%"><tbody><tr>
+				<td style=>
+					<b>Widget in English</b>
+					<div id="helloworld-en">Loading widget. Please, wait...</div>
+				</td>
+				<td>
+					<b>Виджет на Русском языке</b>
+					<div id="helloworld-ru">Загрузка виджета. Пожалуйста, подождите...</div>
+				</td>
+				</tr></tbody></table>
 				
 			</div>
 			
 			<script>
 			Abricos.use(function(){
-				// Get a container
-				var el = document.getElementById('helloworld');
+				// Get a container for widget in English
+				var elEN = document.getElementById('helloworld-en');
 				
 				// Define in helloworld.js 
-				new Abricos.mod.example.HelloWorldWidget(el);
+				new Abricos.mod.example.HelloWorldWidget(elEN, {
+					'lang': 'en'
+				});
+				
+				// Get a container for widget in Russian
+				var elRU = document.getElementById('helloworld-ru');
+				
+				// Define in helloworld.js 
+				new Abricos.mod.example.HelloWorldWidget(elRU, {
+					'lang': 'ru'
+				});
+			
 			});
 			</script>
 			
@@ -75,33 +95,52 @@
 			<pre class="snippet" data-language="html"><code>&lt;script src=&quot;assets/js/abricos.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- Abricos.mod.example.HelloWorldWidget --&gt;
-&lt;script src=&quot;js/example/helloworld.js&quot;&gt;&lt;/script&gt;
-</code></pre>
+&lt;script src=&quot;js/example/helloworld.js&quot;&gt;&lt;/script&gt;</code></pre>
 			
 			<h3 class="content-subhead">HTML</h3>
 			<p>
-				First we'll create the HTML shell for our widget.
+				We'll create the HTML shell for our widgets.
 			</p>
 			
-			<pre class="snippet" data-language="html"><code>&lt;div id=&quot;helloworld&quot;&gt;Loading...&lt;/div&gt;</code></pre>
+			<pre class="snippet" data-language="html"><code>&lt;table style=&quot;width: 100%&quot;&gt;&lt;tbody&gt;&lt;tr&gt;
+&lt;td style=&gt;
+	&lt;b&gt;Widget in English&lt;/b&gt;
+	&lt;div id=&quot;helloworld-en&quot;&gt;Loading widget. Please, wait...&lt;/div&gt;
+&lt;/td&gt;
+&lt;td&gt;
+	&lt;b&gt;&#x0412;&#x0438;&#x0434;&#x0436;&#x0435;&#x0442; &#x043d;&#x0430; &#x0420;&#x0443;&#x0441;&#x0441;&#x043a;&#x043e;&#x043c; &#x044f;&#x0437;&#x044b;&#x043a;&#x0435;&lt;/b&gt;
+	&lt;div id=&quot;helloworld-ru&quot;&gt;&#x0417;&#x0430;&#x0433;&#x0440;&#x0443;&#x0437;&#x043a;&#x0430; &#x0432;&#x0438;&#x0434;&#x0436;&#x0435;&#x0442;&#x0430;. &#x041f;&#x043e;&#x0436;&#x0430;&#x043b;&#x0443;&#x0439;&#x0441;&#x0442;&#x0430;, &#x043f;&#x043e;&#x0434;&#x043e;&#x0436;&#x0434;&#x0438;&#x0442;&#x0435;...&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+</code></pre>
 			
 			<h3 class="content-subhead">JavaScript</h3>
 			<pre class="snippet" data-language="html"><code>&lt;script&gt;
 Abricos.use(function(){
-	// Get a container
-	var el = document.getElementById('helloworld');
+	// Get a container for widget in English
+	var elEN = document.getElementById('helloworld-en');
 	
 	// Define in helloworld.js 
-	new Abricos.mod.example.HelloWorldWidget(el);
+	new Abricos.mod.example.HelloWorldWidget(elEN, {
+		'lang': 'en'
+	});
+	
+	// Get a container for widget in Russian
+	var elRU = document.getElementById('helloworld-ru');
+	
+	// Define in helloworld.js 
+	new Abricos.mod.example.HelloWorldWidget(elRU, {
+		'lang': 'ru'
+	});
+
 });
-&lt;/script&gt;
-			</code></pre>
+&lt;/script&gt;</code></pre>
 	
 			<h3 class="content-subhead">helloworld.js</h3>
 			<p>
 				Source code helloworld.js <a href="js/example/helloworld.js">here</a> 
 			</p>
-
+			
 		</div>
 		
 		<div class="legal pure-g-r" id="footer-container">
