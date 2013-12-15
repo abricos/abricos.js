@@ -1,0 +1,10 @@
+{
+	"name": "Abricos.js",
+	"description": "Template JavaScript Framework",
+	"version": "snapshot",
+	"url": "http://abricosjs.org",
+	"options": {
+		"paths": ["./src"],
+		"outdir": "./build_docs/api"
+	}
+}
