@@ -1,10 +1,20 @@
-/* *
+/*!
  * abricos.js - Template management framework (JavaScript)
  * http://github.com/abricos/abricos.js
  * 
  * The algorithm used based Abricos Platform (http://abricos.org)
  * 
  * The MIT License
+ */
+
+/**
+ * Abricos.js
+ * @module abricos.js
+ */
+
+/**
+ * @class Abricos
+ * @static
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){

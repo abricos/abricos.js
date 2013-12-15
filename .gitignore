@@ -2,3 +2,5 @@
 /.settings
 /.project
 /.buildpath
+build_tmp*/
+build_docs/
