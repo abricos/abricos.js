@@ -1,20 +1,11 @@
-/*!
- * abricos.js - Template management framework (JavaScript)
- * http://github.com/abricos/abricos.js
- * 
+/**
+ * Template management framework (JavaScript)
  * The algorithm used based Abricos Platform (http://abricos.org)
  * 
+ * @author Alexander Kuzmin <roosit@abricos.org>
+ * @version 0.1
+ * @link http://github.com/abricos/abricos.js
  * The MIT License
- */
-
-/**
- * Abricos.js
- * @module abricos.js
- */
-
-/**
- * @class Abricos
- * @static
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){
@@ -53,7 +44,7 @@ var _initAbricos = function(){
 	/**
 	 * The Language class manages phrases localization
 	 * 
-	 * @class Language
+	 * @class Abricos.Language
 	 * @static
 	 */
 
