@@ -1,11 +1,16 @@
-/**
+/*
  * Template management framework (JavaScript)
+ * 
  * The algorithm used based Abricos Platform (http://abricos.org)
  * 
  * @author Alexander Kuzmin <roosit@abricos.org>
- * @version 0.1
- * @link http://github.com/abricos/abricos.js
+ * @url http://github.com/abricos/abricos.js
+ * 
  * The MIT License
+ */
+
+/**
+ * @module abricos-core
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){
@@ -28,7 +33,7 @@ var _initAbricos = function(){
 	/**
 	 * Global config object
 	 * 
-	 * @class config
+	 * @class Abricos.config
 	 * @static
 	 */
 	var CONF = A.config = Y.merge({
@@ -37,21 +42,22 @@ var _initAbricos = function(){
 		 * @property {String} lang
 		 * @default 'en'
 		 */
-		'lang': 'en',
+		lang: 'en',
 		
 		/**
 		 * Default module name
-		 * @propery {String} defModName
+		 * @property {String} defModName
 		 * @default '_module_'
 		 */
-		'defModName': '_module_',
+		defModName: '_module_',
 
 		/**
 		 * Default component name
-		 * @propery {String} defCompName
+		 * @property {String} defCompName
 		 * @default '_component_'
 		 */
-		'defCompName': '_component_'
+		defCompName: '_component_'
+			
 	}, Abricos_Config || {});
 	
 	A.Env = {
@@ -65,12 +71,12 @@ var _initAbricos = function(){
 	A.mod = A.mod || {};
 	
 	/**
-	 * The Language class manages phrases localization
-	 * 
-	 * @class A.Language
-	 * @static
-	 */
-
+	The Language class manages phrases localization.
+	
+ 	@class Abricos.Language
+	@static
+	
+	**/
 	var LNG = A.Language = {};
 
 	// Clone languge data (private function)
@@ -88,31 +94,53 @@ var _initAbricos = function(){
 	};
 	
 	/**
-	 * Add a language phrases in global storage
-	 * 
-	 * 
-	 * <p>
-	 * The config argument object supports the following properties:
-	 * </p>
-	 * <dl>
-	 * 	<dt>modName &#60;String&#62;</dt>
-	 * 	<dd>Module name</dd>
-	 * 
-	 * 	<dt>compName &#60;String&#62;</dt>
-	 * 	<dd>Component name</dd>
-	 * 
-	 * 	<dt>inRoot &#60;boolean&#62;</dt>
-	 * 	<dd>If True - ignore component namespace (mod.modname.compname)</dd>
-	 * </dl>
-	 * 
-	 * @param lang {String} Language ID
-	 * @param o {Object} Language phrases
-	 * @param [modName=config.defModName] {String} Module name
-	 * @param [compName=config.defCompName] {String} Component name
-	 * @param [cfg] {Object} Config
-	 * @method add
-	 * @static
-	 */
+	Add a language phrases in global storage.
+
+	<p>
+	The config argument object supports the following properties:
+	</p>
+	<dl>
+	<dt>modName &#60;String&#62;</dt>
+	<dd>Module name</dd>
+	
+	<dt>compName &#60;String&#62;</dt>
+	<dd>Component name</dd>
+	<dt>inRoot &#60;boolean&#62;</dt>
+	<dd>If True - ignore component namespace (mod.modname.compname)</dd>
+	</dl>
+	
+	@param lang {String} Language ID
+	@param o {Object} Language phrases
+	@param [modName=config.defModName] {String} Module name
+	@param [compName=config.defCompName] {String} Component name
+	@param [cfg] {Object} Config
+	@method add
+	@static
+
+	@example
+	
+	Adding phrases in a specific component dictionary:
+	
+		LNG.add('en', {
+			'widget': {
+				'title': 'Hello World!'
+			}
+		}, 'mymod', 'mycomp');
+		var ph = LNG.get('mod.mymod.mycomp.widget.title');
+		console.log(ph); // > Hello World!
+
+	@example
+
+	Adding phrases in a global dictionary:
+
+		LNG.add('en', {
+			'widget': {
+				'title': 'Hello World!'
+			}
+		});
+		var ph = Abricos.Language.get('widget.title');
+		console.log(ph); // > Hello World!
+	**/
 	LNG.add = function(lang, o, modName, compName, cfg){
 
 		var cfg = {
@@ -124,6 +152,8 @@ var _initAbricos = function(){
 			dLang = d[lang] || (d[lang] = {}),
 			args = SLICE.call(arguments, 0),
 			aln = args.length;
+		
+		
 		
 		if (aln > 2 && L.isObject(args[aln-1])){
 			cfg = L.merge(cfg, args[aln-1]);
@@ -148,13 +178,20 @@ var _initAbricos = function(){
 		}
 	};
 	
+	/*
+	LNG.add = function(lang, seed){
+		
+	};
+	/**/
+	
 	/**
 	 * Get a phrase or phrases collection by ID.
+	 * 
 	 * Example: 
 	 * 	Abricos.Language.get('mod.mymod.mycomp.title')
 	 * 	or
 	 * 	Abricos.Language.get(['mod', 'mymod', 'mycomp', 'title'])
-	 * @method add
+	 * @method get
 	 * @static
 	 */
 	LNG.get = function(key, cfg){
@@ -185,6 +222,7 @@ var _initAbricos = function(){
 	
 	/**
 	 * Replace language IDs in text.
+	 * 
 	 * @param {String} s Source.
 	 * @param {Object|NULL} cfg Config.
 	 * @return {String} Text filled language phrases.
@@ -246,7 +284,7 @@ var _initAbricos = function(){
 	/**
 	 * The CSS class
 	 * 
-	 * @class Language
+	 * @class Abricos.CSS
 	 * @static
 	 */
 
@@ -333,7 +371,7 @@ var _initAbricos = function(){
 	/**
 	 * The Template class manages template elements
 	 * 
-	 * @class Template
+	 * @class Abricos.Template
 	 * @static
 	 */
 
@@ -732,7 +770,7 @@ var _initAbricos = function(){
 	A.ComponentLanguage = ComponentLanguage;
 	
     /**
-     * The Abricos global namespace object
+     * The Abricos global namespace object.
      * 
      * @class Abricos
      * @static
@@ -857,7 +895,8 @@ var _initAbricos = function(){
 };
 
 
-/* 
+/**
+ *  
  * The minimum set of basic functions taken from the YUI library (http://yuilibrary.com/).
  * 
  * All of the features of this wonderful library, you can get a call using the line:
@@ -893,6 +932,8 @@ var _initAbricos = function(){
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * @class YUI
  */
 
 if (typeof YUI == 'undefined' || !YUI.Lang){
@@ -917,6 +958,7 @@ if (typeof YUI == 'undefined' || !YUI.Lang){
 	@method merge
 	@param {Object} objects* One or more objects to merge.
 	@return {Object} A new merged object.
+	@static
 	**/
 	Y.merge = function () {
 	    var i      = 0,
@@ -940,8 +982,8 @@ if (typeof YUI == 'undefined' || !YUI.Lang){
 	
 	/**
 	 * Provides core language utilites and extensions used throughout YUI.
-	 *
-	 * @class Lang
+	 * 
+	 * @class YUI.Lang
 	 * @static
 	 */
 

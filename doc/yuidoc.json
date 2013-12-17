@@ -1,7 +1,7 @@
 {
 	"name": "Abricos.js",
 	"description": "Template JavaScript Framework",
-	"version": "snapshot",
+	"version": "0.1",
 	"url": "http://abricosjs.org",
 	"options": {
 		"paths": ["./src"],
