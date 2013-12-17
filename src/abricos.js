@@ -25,9 +25,32 @@ var _initAbricos = function(){
 
 	A._loading = true;
 	
+	/**
+	 * Global config object
+	 * 
+	 * @class config
+	 * @static
+	 */
 	var CONF = A.config = Y.merge({
+		
+		/**
+		 * @property {String} lang
+		 * @default 'en'
+		 */
 		'lang': 'en',
+		
+		/**
+		 * Default module name
+		 * @propery {String} defModName
+		 * @default '_module_'
+		 */
 		'defModName': '_module_',
+
+		/**
+		 * Default component name
+		 * @propery {String} defCompName
+		 * @default '_component_'
+		 */
 		'defCompName': '_component_'
 	}, Abricos_Config || {});
 	
@@ -44,7 +67,7 @@ var _initAbricos = function(){
 	/**
 	 * The Language class manages phrases localization
 	 * 
-	 * @class Abricos.Language
+	 * @class A.Language
 	 * @static
 	 */
 
@@ -66,12 +89,31 @@ var _initAbricos = function(){
 	
 	/**
 	 * Add a language phrases in global storage
-	 * @param {String} Language ID
-	 * @param {Object} Language phrases
+	 * 
+	 * 
+	 * <p>
+	 * The config argument object supports the following properties:
+	 * </p>
+	 * <dl>
+	 * 	<dt>modName &#60;String&#62;</dt>
+	 * 	<dd>Module name</dd>
+	 * 
+	 * 	<dt>compName &#60;String&#62;</dt>
+	 * 	<dd>Component name</dd>
+	 * 
+	 * 	<dt>inRoot &#60;boolean&#62;</dt>
+	 * 	<dd>If True - ignore component namespace (mod.modname.compname)</dd>
+	 * </dl>
+	 * 
+	 * @param lang {String} Language ID
+	 * @param o {Object} Language phrases
+	 * @param [modName=config.defModName] {String} Module name
+	 * @param [compName=config.defCompName] {String} Component name
+	 * @param [cfg] {Object} Config
 	 * @method add
 	 * @static
 	 */
-	LNG.add = function(lang, o){
+	LNG.add = function(lang, o, modName, compName, cfg){
 
 		var cfg = {
 				'modName': CONF.defModName,
@@ -741,7 +783,7 @@ var _initAbricos = function(){
 			callback = su[1];
 
 		if (L.isFunction(callback)){
-			callback();
+			callback(A);
 		}
 		A._use();
 	};
