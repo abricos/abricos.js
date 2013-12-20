@@ -628,7 +628,13 @@ var _initAbricos = function(){
 	};
 	A.TemplateManager = TemplateManager;
 
-	
+	/**
+	 * Component of module
+	 * 
+	 * @class Abricos.Component
+	 * @constructor
+	 * @param cfg {Object}
+	 */
 	var Component = function(cfg){
 		cfg = Y.merge({
 			'entryPoint': null
