@@ -99,68 +99,6 @@ LNG.add_OLD = function(lang, o, modName, compName, cfg){ // TODO: refactor
 };
 
 
-/**
- * Replace language IDs in text.
- * 
- * @param {String} s Source.
- * @param {Object|NULL} cfg Config.
- * @return {String} Text filled language phrases.
- * @method fillText
- * @static
- */
-LNG.fillText = function(s, cfg){
-
-	cfg = Y.merge({
-		'lang': CONF.lang,
-		'modName': null,
-		'compName': null,
-		'tName': null
-	}, cfg || {});
-
-	// replacement of long IDs {#...}
-	var exp = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),		
-		arr = s.match(exp);
-
-	if (L.isArray(arr)){ 
-		var i, key, ph;
-		for (i=0;i<arr.length;i++){
-			key = arr[i].replace(/[\{#\}]/g, '');
-			
-			ph =  LNG.get(key, {
-				'lang': cfg.lang
-			});
-			s = s.replace(arr[i], ph);
-		}
-	}
-
-	// replacement of short IDs {##...}
-	if (L.isValue(cfg['modName']) 
-			&& L.isValue(cfg['compName'])
-			&& L.isValue(cfg['tName'])){
-
-		var exp = new RegExp("(\{\##[a-zA-Z0-9_\.\-]+\})", "g"),
-			arr = s.match(exp);
-
-		if (L.isArray(arr)){ 
-			var i, key, ph;
-			for (i=0;i<arr.length;i++){
-				key = arr[i].replace(/[\{##\}]/g, '');
-				
-				key = 'mod.'+cfg['modName']+'.'+cfg['compName']+'.'
-					+cfg['tName']+'.'+key;
-
-				ph =  LNG.get(key, {
-					'lang': cfg.lang
-				});
-				s = s.replace(arr[i], ph);
-			}
-		}
-	}
-	
-	return s;
-};
-	
-
 // T.add(oSeed, sModName, sCompName)
 // T.add(sTElName, sTElBody, sModName, sCompName);
 // T.add(sSeed, sModName, sCompName)

@@ -71,6 +71,110 @@ var _initAbricos = function(){
 	A.mod = A.mod || {};
 	
 	/**
+	 * The Key class specifies the path(namespace) to templates,
+	 * phrases of localization, components of module and etc.
+	 * 
+	 * @class Abricos.Key
+	 * @constructor
+	 * @param key {String|Array|Abricos.Key}
+	 * @example
+	 * 
+	 * 	var key = new A.Key("mod.mymod.mycomp.widget");
+	 * 	console.log(key.toArray()); // ["mod", "mymod", "mycomp", "widget"]
+	 */
+	var Key = function(key){
+		this.init(key);
+	};
+	Key.prototype = {
+		/**
+		 * Initialization.
+		 * @param key {String|Array|Abricos.Key}
+		 * @method init
+		 * @protected
+		 * @return {String}
+		 */
+		init: function(key){
+			
+			/**
+			 * Key elements of an array
+			 * @property path
+			 * @type array
+			 */
+			this.path = [];
+
+			
+			if (key instanceof Key){
+				key = key.toArray();
+			}else if (L.isString(key)){
+				key = key.split('.');
+			}
+			var i, p = this.path;
+			for (i=0;i<key.length;i++){
+				p[p.length] = L.trim(key[i]);
+			}
+		},
+		
+		/**
+		 * Return a string.
+		 * @method toString
+		 * @return {String}
+		 */
+		toString: function(){
+			return this.path.join(".");
+		},
+		
+		/**
+		 * Return a array.
+		 * @method toArray
+		 * @return {String}
+		 */
+		toArray: function(){
+			return this.path.slice(0);
+		},
+		
+		/**
+		 * @return {Abricos.Key}
+		 * @method clone
+		 */
+		clone: function(){
+			return new A.Key(this);
+		},
+		
+		/**
+		 * Executes the supplied function on each item in the key
+		 * @param fn {Function} Function to execute on each item in 
+		 * the key. The function will receive the following arguments:
+		 * 	@param {String} fn.item Current key item.
+		 * 	@param {Number} fn.index Current key index.
+		 * @method each
+		 */
+		each: function(fn){
+			if (!L.isFunction(fn)){ return; }
+			var p = this.path, i;
+			for (i=0;i<p.length;i++){
+				fn(p[i], i);
+			}
+		},
+		
+		/**
+		 * Add a new item(s) to the end an key.
+		 * @param ki {String|Array|Abricos.Key} Key item.
+		 * @param [clone=false] {Boolean} If TRUE - creates a new 
+		 * instance of the class.
+		 * @return {Abricos.Key}
+		 */
+		push: function(ki, clone){
+			var key = clone ? this.clone(): this,
+				pkey = new A.Key(ki);
+			pkey.each(function(item){
+				key.path.push(item);
+			});
+			return key;
+		}
+	};
+	A.Key = Key;
+	
+	/**
 	 * The Language class manages phrases localization.
 	 * @class Abricos.Language
 	 * @static
@@ -151,6 +255,11 @@ var _initAbricos = function(){
 	/**
 	 * Get a phrase/phrases collection by ID.
 	 * 
+	 * @param key {String|Array|Abricos.Key} Phrase ID
+	 * @param [lang=Abricos.config.lang] {String} Language ID
+	 * @return {String} Phrase
+	 * @method get
+	 * @static
 	 * @example
 	 * 
 	 * 	var ph = LNG.get('widget.title');
@@ -161,72 +270,13 @@ var _initAbricos = function(){
 	 * 	var ph = LNG.get(['widget', 'button'], 'ru');
 	 * 	console.log(ph); // > Закрыть
 	 * 
-	 * @param key {String|Array} Phrase ID
-	 * @param [lang=Abricos.config.lang] {String} Language ID
-	 * @method get
-	 * @static
 	 */
 	LNG.get = function(key, lang){
 		lang = lang || A.config.lang;
 		
-		var d = A.Env.langs[lang];
-		if (!d){ return ''; }
-
-		if (L.isString(key)){
-			key = key.split('.');
-		}
-		if (!L.isArray(key)){
-			return '';
-		}
+		var ph = A.objectByKey(A.Env.langs[lang], key);
 		
-		var i, l = d;
-		for (i=0;i<key.length;i++){
-			l = l[key[i]];
-			if (!L.isValue(l)){
-				return '';
-			}
-		}
-		return l;
-	};
-	
-	/**
-	 * Replace language IDs in text.
-	 * Before filling phrases need to add them in storage,
-	 * see {{#crossLink "Abricos.Language/add:method"}}{{/crossLink}}.
-	 * 
-	 * @param {String} s Source string that contains identifiers 
-	 * 		to replace phrases.
-	 * @param [lang=Abricos.config.lang] {String} Language ID.
-	 * @return {String} Text filled language phrases.
-	 * @method fillText
-	 * @static
-	 * @example
-	 * 
-	 * 	var s = LNG.fillText('<h1>{#widget.title}</h1>');
-	 * 	console.log(s); // <h1>Hello World!</h1>
-	 */
-	LNG.fillText = function(s, cfg){
-		
-		cfg = Y.merge({
-			'key': '',
-			'lang': A.config.lang
-		}, cfg || {});
-
-		// replacement of long IDs {#...}
-		var exp = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),		
-			arr = s.match(exp);
-
-		if (L.isArray(arr)){ 
-			var i, key, ph;
-			for (i=0;i<arr.length;i++){
-				key = arr[i].replace(/[\{#\}]/g, '');
-				
-				ph =  LNG.get(key, lang);
-				s = s.replace(arr[i], ph);
-			}
-		}
-		
-		return s;
+		return L.isString(ph) ? ph : '';
 	};
 	
 
@@ -267,7 +317,7 @@ var _initAbricos = function(){
 			seed = T.parse(seed);
 		}
 
-		var t = A.objectByKey(key, A.Env.temps);
+		var t = A.objectByKey(key, A.Env.temps, true);
 		
 		for (var tName in seed){
 			
@@ -364,15 +414,15 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	T.get = function(key){
-		return A.objectByKey(A.Env.temps, key, true);
+		return A.objectByKey(A.Env.temps, key);
 	};
 	
 
 	/**
 	 * The TemplateManager class.
-	 * @class TemplateManager
+	 * @class Abricos.TemplateManager
 	 * @constructor
-	 * @param key {String|Array} Template ID.
+	 * @param key {String|Array|Abricos.Key} Template ID.
 	 * @param cfg {Object} Config.
 	 */
 	var TemplateManager = function(key, cfg){
@@ -390,20 +440,43 @@ var _initAbricos = function(){
 	
 	TemplateManager.prototype = {
 		init: function(key, cfg){
+			/**
+			 * Key.
+			 * @property key
+			 * @type Abricos.Key
+			 */
+			this.key = key = new A.Key(key);
+			
+			/**
+			 * Config.
+			 * @property cfg
+			 * @type Object
+			 */
 			this.cfg = cfg;
 			
-			// map unique identifiers in the template
+			/**
+			 * Map unique identifiers in the template
+			 * @proprty idMap
+			 * @type Object
+			 */
 			this.idMap = {};
+
+			/**
+			 * Elements of template data
+			 * @property data
+			 * @type Object
+			 */
+			this.data = {};
 
 			// replace language IDs in text.
 			// before filling phrases need to add them in storage
 			var tOrig = T.get(key), 
 				t = {},
 				expLong = new RegExp("(\{\#[a-zA-Z0-9_\.\-]+\})", "g"),
-				s, arr, i, rkey, ph;
+				expShort = new RegExp("(\{\##[a-zA-Z0-9_\.\-]+\})", "g"),
+				expId = new RegExp("(\{i\#[a-z0-9_\-]+\})", "gi"),
+				s, arr, i, rkey, ph, skey;
 			
-				// 
-
 			for (var name in tOrig){
 				if (!L.isValue(cfg.defTName)){
 					cfg.defTName = name;
@@ -412,63 +485,84 @@ var _initAbricos = function(){
 				
 				// replacement of long IDs {#...}
 				arr = s.match(expLong);
-				
 				if (L.isArray(arr)){ 
 					for (i=0;i<arr.length;i++){
-						rkey = arr[i].replace(/[\{#\}]/g, '');
+						skey = arr[i].replace(/[\{#\}]/g, '');
 						
-						ph = LNG.get(rkey, cfg.lang);
+						ph = LNG.get(skey, cfg.lang);
 						s = s.replace(arr[i], ph);
 					}
 				}
 				
 				// replacement of short IDs {##...}
-
-
-				t[name] = s;
-			}
-			
-			// create a map of unique identifiers in the template
-			// Eexample: "<div id='{i#mydiv}'>...</div>" => (idMap[mydiv] = 'abricos_8462') 
-			var exp = new RegExp("(\{i\#[a-z0-9_\-]+\})", "gi");
-			for (var name in t){
-				var s = t[name],
-					arr = s.match(exp);
-				
-				if (!L.isArray(arr)) { continue; }
-				
-				var i, key, genid,
-					tIdMap = this.idMap[name] = {};
-				for (i=0;i<arr.length;i++){
-					key = arr[i].replace(/\{i#([a-zA-Z0-9_\-]+)\}/, '$1');
+				arr = s.match(expShort);
+				if (L.isArray(arr)){
 					
-					if (tIdMap[key]){ continue; }
-					
-					tIdMap[key] = genid = this.genid(name);
-					
-					t[name] = s = s.replace(new RegExp(arr[i], "gi"), genid);
+					for (i=0;i<arr.length;i++){
+						skey = arr[i].replace(/[\{##\}]/g, '');
+						rkey = key.push(name+"."+skey, true);
+						
+						ph = LNG.get(rkey, cfg.lang);
+						s = s.replace(arr[i], ph);
+					}
 				}
+
+				// create a map of unique identifiers in the template
+				// Eexample: "<div id='{i#mydiv}'>...</div>" => (idMap[mydiv] = 'abricos_8462') 
+				arr = s.match(expId);
+				if (L.isArray(arr)) { 
+					var genid,
+						tIdMap = this.idMap[name] = {};
+					for (i=0;i<arr.length;i++){
+						skey = arr[i].replace(/\{i#([a-zA-Z0-9_\-]+)\}/, '$1');
+						
+						if (tIdMap[skey]){ continue; }
+						
+						tIdMap[skey] = genid = this.genid(name);
+						
+						s = s.replace(new RegExp(arr[i], "gi"), genid);
+					}
+				}
+				t[name] = s;
 			}
 			
 			this.data = t;
 		},
+		/**
+		 * Generate unique ID prefix.
+		 * @param name {String} Name of element of template.
+		 * @method genid
+		 * @return {String} ID prefix.
+		 */
 		genid: function(name){
 			var cfg = this.cfg,
-				id = cfg.idPrefix+name;
-
-			if (L.isString(cfg.modName) && L.isString(cfg.compName)){
-				id += '_'+cfg.modName.substring(0,3);
-				id += '_'+cfg.compName.substring(0,3);
-			}
+				id = cfg.idPrefix;
 			
+			id += this.key.toString.replace(".", "_")+name;
 			id += '_'+(TemplateManager._counter++);
 			
 			return id;
 		},
-		get: function(tnm){
-			return (this.data[tnm] || "");
+		
+		/**
+		 * Get element of template
+		 * @param name {String}
+		 * @return {String}
+		 * @method get
+		 */
+		get: function(name){
+			return (this.data[name] || "");
 		},
-		replace: function(tnm, o){
+		
+		/**
+		 * Replace values ​​for the variables in the template.
+		 * @param tnm {String} Name of element of template.
+		 * @param obj {Object|String} Variables and their values.
+		 * @param [val] {String} If type `obj` is String, then this parameter 
+		 * must contain a value.
+		 * @return {String}
+		 */
+		replace: function(tnm, obj){
 			var t = this.get(tnm),
 				args = SLICE.call(arguments, 0);
 			
@@ -479,23 +573,28 @@ var _initAbricos = function(){
 				o = no;
 			}
 			
-			if (!L.isObject(o)){ return t; }
+			if (!L.isObject(obj)){ return t; }
 			
 			var exp;
-			for (var nm in o){
+			for (var nm in obj){
 				exp = new RegExp("\{v\#"+nm+"\}", "g");
-				t = t.replace(exp, o[nm]);
+				t = t.replace(exp, obj[nm]);
 			}
 			
 			return t;
 		},
 		
-		// Get HTML element Id
-		gelid: function(key){
-			if (!L.isString(key)){ return null; }
+		/**
+		 * Get HTML element Id
+		 * @param idKey {String}
+		 * @method gelid
+		 * @return {String}
+		 */
+		gelid: function(idKey){
+			if (!L.isString(idKey)){ return null; }
 			
 			var tName = this.cfg['defTName'],
-				a = key.split('.');
+				a = idKey.split('.');
 			
 			if (!L.isString(tName)){ return null; }
 			
@@ -504,17 +603,22 @@ var _initAbricos = function(){
 				if (tnm.length > 0){
 					tName = tnm;
 				}
-				key = a[1];
+				idKey = a[1];
 			}
 			var ta = this.idMap[tName];
 			if (!ta){ return null; }
 			
-			return ta[key] || null;
+			return ta[idKey] || null;
 		},
 		
-		// Get HTML element
-		gel: function(key){
-			var id = this.gelid(key);
+		/**
+		 * Get HTML element
+		 * @param idKey {String}
+		 * @return {String}
+		 * @method gel
+		 */
+		gel: function(idKey){
+			var id = this.gelid(idKey);
 			if (!L.isValue(id)){ return null; }
 			
 			var el = document.getElementById(id);
@@ -727,7 +831,7 @@ var _initAbricos = function(){
 	 * If the element of object does not exist, it is created.
 	 * @param obj {Object} Object.
 	 * @param key {String|Array} Key.
-	 * @param [notCreate=false] {Boolean} If TRUE -method will not create 
+	 * @param [create=false] {Boolean} If TRUE -method will create 
 	 * 		an object if it is not found on a key.
 	 * @method objectByKey
 	 * @static
@@ -736,7 +840,7 @@ var _initAbricos = function(){
 	 * @example
 	 * 
 	 * 	var d = {mod: {}};
-	 * 	A.objectByKey(d, 'mod.mymod.mycomp');
+	 * 	A.objectByKey(d, 'mod.mymod.mycomp', true);
 	 * 	console.log(d); // > {mod:{mymod:{mycomp:{}}}}
 	 * 	
 	 * 	var d1 = A.objectByKey(d, 'mod.mymod');
@@ -745,22 +849,19 @@ var _initAbricos = function(){
 	 * 	var d2 = A.objectByKey(d, 'mod.test');
 	 * 	console.log(d2); // > null
 	 */
-	A.objectByKey = function(obj, key, notCreate){
-		if (L.isString(key)){
-			key = key.split('.');
-		}
-		if (!L.isArray(key)){
-			return obj;
-		}
+	A.objectByKey = function(obj, key, create){
+		if (L.isObject(obj)){ return null; }
 		
-		var i, l = obj;
-		for (i=0;i<key.length;i++){
-			l = l[key[i]];
-			if (!l && notCreate){
+		key = new A.Key(key);
+		
+		var l = obj;
+		key.each(function(ki){
+			l = l[ki];
+			if (!l && !create){
 				return null;
 			}
-			l = l || (l[key[i]]={});
-		}
+			l = l || (l[ki]={});
+		});
 		return l;
 	};
 	
