@@ -61,42 +61,6 @@ Adding phrases in a global dictionary:
 	var ph = Abricos.Language.get('widget.title');
 	console.log(ph); // > Hello World!
 **/
-LNG.add_OLD = function(lang, o, modName, compName, cfg){ // TODO: refactor
-
-	var cfg = {
-			'modName': CONF.defModName,
-			'compName': CONF.defCompName,
-			'inRoot': false // True - ignore component namespace (mod.modname.compname)
-		},
-		d = A.Env.langs,
-		dLang = d[lang] || (d[lang] = {}),
-		args = SLICE.call(arguments, 0),
-		aln = args.length;
-	
-	
-	
-	if (aln > 2 && L.isObject(args[aln-1])){
-		cfg = L.merge(cfg, args[aln-1]);
-	}
-	
-	if (cfg.inRoot){
-		cloneLang(o, dLang);
-	}else{
-		if (aln >= 4){
-			cfg = Y.merge(cfg, {
-				'modName': args[2],
-				'compName': args[3]
-			});
-		}
-		var mnm = cfg.modName, cnm = cfg.compName,
-			no = {'mod': {}};
-		
-		no['mod'][mnm] = {};
-		no['mod'][mnm][cnm] = o;
-
-		cloneLang(no, dLang);
-	}
-};
 
 
 // T.add(oSeed, sModName, sCompName)
@@ -162,81 +126,124 @@ T.add = function(){
 	return T.get(mnm, cnm);
 };
 
-
 /**
- * Get templates of a specific component.
- * @param {String} mnm The name of the module.
- * @param {String} cnm The name of the component.
- * @method get
- * @return {Object}
- * @static
+ * Component of module
+ * 
+ * @class Abricos.Component
+ * @constructor
+ * @param cfg {Object}
  */
-T.get = function(mnm, cnm){
-	
-	var args = SLICE.call(arguments, 0);
-	if (L.isObject(args[0])){
-		var cfg = args[0];
-		mnm = cfg.modName;
-		cnm = cfg.compName;
-	}
-	mnm = mnm || CONF['defModName'];
-	cnm = cnm || CONF['defCompName'];
-
-	var t = A.Env.temps;
-	
-	if (t[mnm] && t[mnm][cnm]){
-		return t[mnm][cnm];
-	}
-	return null;
-};
-
-
-T.build = function(names, cfg){
+var Component = function(cfg){
 	cfg = Y.merge({
-		'lang': CONF.lang,
-		'modName': CONF.defModName,
-		'compName': CONF.defCompName,
-		'defTName': null
+		'entryPoint': null
 	}, cfg || {});
 	
-	var t = T.get(cfg);
-	if (!L.isObject(t)){
-		t = {};
-	}
+	this.init(cfg);
+};
+Component.prototype = {
+	init: function(cfg){
 	
-	names = L.isString(names) ? names : '';
-	
-	// cloning template elements
-	var ct = {};
-	if (names != ''){
-		var arr = names.split(','), i, name, defTName = null;
-		for (i=0;i<arr.length;i++){
-			name = L.trim(arr[i]);
-			
-			if (!t[name]){ continue; }
-			ct[name] = t[name];
-			if (!defTName){
-				defTName = name;
-			}
-		}
-		if (!L.isValue(cfg['defTName'])){
-			cfg['defTName'] = defTName;
-		}
-	}else{
-		for (var name in t){
-			ct[name] = t[name]; 
-		}
-	}
-	
-	var css = CSS.get(cfg.modName, cfg.compName);
-	if (L.isValue(css) && !css._cssApplied){
-		css._cssApplied = true;
+		this.moduleName = cfg['modName'];
 		
-		// applying CSS on the first call buildTemplate
-		CSS.apply(cfg.modName, cfg.compName);
-	}
+		this.name = cfg['compName'];
+		
+		this.entryPoint = cfg['entryPoint'];
+		
+		this.namespace = A.mod[this.moduleName] || (A.mod[this.moduleName] = {});
+		
+		this.template = new A.ComponentTemplate(this);
+		
+		this.language = new A.ComponentLanguage(this);
 
-	return new A.TemplateManager(ct, cfg);
+		// TODO: necessary to implement
+		this.requires = {};
+	}
+};
+A.Component = Component;
+
+var ComponentTemplate = function(component){
+	this.init(component);
+};
+ComponentTemplate.prototype = {
+	init: function(component){
+		this.component = component;
+	},
+	getItems: function(){
+		var comp = this.component,
+			ts = T.get(comp.moduleName, comp.name);
+		
+		return L.isValue ? ts : {};
+	},
+	get: function(name){
+		var ts = this.getItems();
+		return ts[name] || null; 
+	}
+};
+A.ComponentTemplate = ComponentTemplate;
+
+var ComponentLanguage = function(component){
+	this.init(component);
+};
+ComponentLanguage.prototype = {
+	init: function(component){
+		this.component = component;
+	},
+	get: function(key, cfg){
+		var comp = this.component;
+		
+		return LNG.get('mod.'+comp.moduleName+'.'+comp.name+'.'+key);
+	}
+};
+A.ComponentLanguage = ComponentLanguage;
+
+
+/**
+ * The CSS class
+ * 
+ * @class Abricos.CSS
+ * @static
+ */
+
+var CSS = A.CSS = {};
+
+CSS.add = function(seed, mnm, cnm, cfg){
+	
+	if (!L.isString(seed)){ return; }
+	
+	var cfg = {
+			'modName': CONF.defModName,
+			'compName': CONF.defCompName
+		},
+		args = SLICE.call(arguments, 0),
+		aln = args.length,
+		css = A.Env.css;
+	
+	var source = L.trim(args[0]);
+	
+	if (source.indexOf('#') === 0){
+		var el = document.getElementById(source.substring(1));
+		if (!el){
+			source = "";
+		}else{
+			source = el.innerHTML;
+		}
+		seed = source;
+	}
+	
+	if (aln >= 3){
+		cfg = Y.merge(cfg, {
+			'modName': args[1],
+			'compName': args[2]
+		});
+	}
+	
+	mnm = cfg.modName;
+	cnm = cfg.compName;			
+
+	var cssm = css[mnm] || (css[mnm] = {});
+	cssm[cnm] = seed;
+	
+	return seed;
 };
 
 
@@ -249,3 +256,121 @@ Abricos.Component = function(){
 	// ...
 };
 
+
+
+/**
+ * Determines if the component with the given name exists.
+ * 
+ * @param {String} mnm The name of the module.
+ * @param {String} cnm The name of the component.
+ * @return {Boolean} True if the component exists, false if not.
+ * @method exists
+ * @static
+ */
+/*
+A.exists = function(mnm, cnm){
+	var mods = A.Env.mods;
+
+	if (!mods[mnm]){ return false; }
+
+	return !!(mods[mnm][cnm]);
+};
+/**/
+
+var stackUse = [];
+
+A.use = function(){
+    var args = SLICE.call(arguments, 0),
+    	callback = args[args.length - 1];
+    
+    if (L.isFunction(callback)){
+    	args.pop();
+    }else{
+    	callback = null;
+    }
+
+	stackUse[stackUse.length] = [args, callback];
+
+    if (!A._loading){
+    	A._use();
+    }
+};
+
+A._use = function(){
+	if (stackUse.length == 0){ return; }
+
+	var su = stackUse.pop(),	
+		args = su[0],
+		callback = su[1];
+
+	if (L.isFunction(callback)){
+		callback(A);
+	}
+	A._use();
+};
+
+
+var stackModsToInit = [];
+
+A.add = function(mnm, cnm, o){
+	var mods = A.Env.mods;
+
+	if (A.exists(mnm, cnm)){
+		throw new Error("Component is already registered: module="+mnm+", component="+cnm);
+	}
+	
+	var comp;
+
+	if (o instanceof Component){
+		comp = o;
+	}else if (L.isFunction(o)){
+		comp = new Component({
+			'entryPoint': o
+		});
+	}else if (L.isObject(o)){
+		comp = new Component(o);
+	} else {
+		return;
+	}
+	
+	comp.moduleName = mnm;
+	comp.name = cnm;
+	
+	var m = mods[mnm] || (mods[mnm] = {});
+	m[cnm] = comp;
+
+	stackModsToInit[stackModsToInit.length] = comp;
+
+	if (!A._loading){
+		A._add();
+	}
+};
+
+A._add = function(){
+	if (stackModsToInit.length == 0){ return; }
+	
+	var comp = stackModsToInit.pop();
+
+	if (L.isFunction(comp.entryPoint)){
+		
+		var mnm = comp.moduleName, 
+			NS = A.mod[mnm] || (A.mod[mnm] = {});
+		
+		comp.entryPoint(NS, comp);
+	}
+	A._add();
+};
+
+var onDOMReady = function(){
+	A._loading = false;
+	
+	A._add();
+	A._use();
+};
+
+(function() {
+    if (document.addEventListener) {
+        return document.addEventListener('DOMContentLoaded', onDOMReady, false);
+    }
+    window.attachEvent('onload', onDOMReady);
+}) ();

@@ -1,4 +1,4 @@
-Abricos.add('example', 'helloworld', {
+Abricos.add('example.helloworld', {
 	
 'template': {
 	"widget": "<div id='{i#id}'>" +
