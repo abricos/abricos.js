@@ -11,6 +11,7 @@
 
 /**
  * @module abricos-core
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){
@@ -53,8 +54,6 @@ var _initAbricos = function(){
 		'langs': {},
 		'css': {}
 	};
-	
-	A.mod = A.mod || {};
 	
 	/**
 	 * The Key class specifies the path(namespace) to templates,
@@ -148,6 +147,7 @@ var _initAbricos = function(){
 		 * @param [clone=false] {Boolean} If TRUE - creates a new 
 		 * instance of the class.
 		 * @return {Abricos.Key}
+		 * @method push
 		 */
 		push: function(ki, clone){
 			var key = clone ? this.clone(): this,
@@ -155,6 +155,19 @@ var _initAbricos = function(){
 			pkey.each(function(item){
 				key.path.push(item);
 			});
+			return key;
+		},
+		
+		/**
+		 * Remove the last element of an key.
+		 * @param [clone=false] {Boolean} If TRUE - creates a new 
+		 * instance of the class.
+		 * @return {Abricos.Key}
+		 * @method pop
+		 */
+		pop: function(clone){
+			var key = clone ? this.clone(): this;
+			key.path.pop();
 			return key;
 		}
 	};
@@ -704,20 +717,20 @@ var _initAbricos = function(){
 	
 	/**
 	 * The Component class
-	 * @class Component
+	 * @class Abricos.Component
 	 * @constructor
-	 * @param key {String|Array|Abricos.Key}
+	 * @param key {String|Array|Abricos.Key} Key.
 	 * @param fnEP {Function} Function containing component code. This
 	 * 	function will be executed whenever the component is attached to a
 	 * 	specific Abricos instance.
 	 * 
-	 * 	@param fnEP.ns {Object} Component namespace.
-	 * 	@param fnEP.cmp {Abricos.Component} Component instance.
+	 * 	@param fnEP.NS {Object} Component namespace.
+	 * 	@param fnEP.CMP {Abricos.Component} Component instance.
 	 * 
-	 * @param [config] {Object} Component config.
-	 * 	@param [config.template] {String|Object} Templates data.
-	 * 	@param [config.language] {Object} Language phrases.
-	 * 	@param [config.css] {String} CSS Style source.
+	 * @param [cfg] {Object} Component config.
+	 * 	@param [cfg.template] {String|Object} Templates data.
+	 * 	@param [cfg.language] {Object} Language phrases.
+	 * 	@param [cfg.css] {String} CSS Style source.
 	 */
 	var Component = A.Component = function(key, fnEP, cfg){
 		cfg = Y.merge({
@@ -730,14 +743,32 @@ var _initAbricos = function(){
 	Component.prototype = {
 		init: function(key, fnEP, cfg){
 			
+			/**
+			 * Key
+			 * @propery key
+			 * @type Abricos.Key
+			 */
 			this.key = new A.Key(key);
 			
+			/**
+			 * Function containing component code. This
+			 * 	function will be executed whenever the component is attached to a
+			 * 	specific Abricos instance.
+			 * @property entryPoint
+			 * @type Function
+			 */
 			this.entryPoint = fnEP;
-			
+
+			/**
+			 * Component template manager.
+			 * @property template
+			 * @type Abricos.ComponentTemplate
+			 */
+			this.template = new ComponentTemplate(this);
+
 			if (L.isValue(cfg.template)){
 				T.add(key, cfg.template);
 			}
-			this.template = new ComponentTemplate(this);
 			
 			if (L.isObject(cfg.language)){
 				LNG.add(cfg.language);
@@ -746,6 +777,26 @@ var _initAbricos = function(){
 			if (L.isString(cfg.css)){
 				CSS.add(key, css);
 			}
+			
+			var keyNS = this.key.pop(true),
+				ns = A.objectByKey(A.ns, keyNS);
+			
+			/**
+			 * Namespace.
+			 * @property namespace
+			 * @type Object
+			 */
+			this.namespace = ns;
+
+			/**
+			 * Component language.
+			 * @property language
+			 * @type Abricos.ComponentLanauge
+			 */
+			this.language = new A.ComponentLanguage(this);
+			
+			// TODO: necessary to implement
+			this.requires = {};
 		}
 	};
 	A.Component = Component;
@@ -793,6 +844,28 @@ var _initAbricos = function(){
 	};
 	A.ComponentTemplate = ComponentTemplate;
 	
+	/**
+	 * The ComponentLanguage class.
+	 * @class Abricos.ComponentLanguage
+	 */
+	var ComponentLanguage = function(cmp){
+		this.init(component);
+	};
+	ComponentLanguage.prototype = {
+		init: function(cmp){
+			this.component = cmp;
+		},
+		/**
+		 * Get
+		 * @param [lang] {String}
+		 * @method get
+		 */
+		get: function(lang){
+			return LNG.get(this.component.key, lang);
+		}
+	};
+	A.ComponentLanguage = ComponentLanguage;
+
     /**
      * The Abricos global namespace object.
      * 
@@ -800,6 +873,23 @@ var _initAbricos = function(){
      * @static
      */
 
+	/**
+	 * Namespace components.
+	 * @property ns
+	 * @type Object
+	 * @static
+	 */
+	A.ns = A.ns || {};
+
+	/**
+	 * Namespace components.
+	 * @property mod
+	 * @type Object
+	 * @static
+	 * @deprecated Use `Abricos.ns`
+	 */
+	A.mod = A.ns;
+	
 
 	/**
 	 * Get component.
@@ -825,17 +915,111 @@ var _initAbricos = function(){
 		return L.isValue(A.get(key));
 	};
 	
+	var stackUse = [];
+
+	A.use = function(){
+	    var args = SLICE.call(arguments, 0),
+	    	callback = args[args.length - 1];
+	    
+	    if (L.isFunction(callback)){
+	    	args.pop();
+	    }else{
+	    	callback = null;
+	    }
+
+		stackUse[stackUse.length] = [args, callback];
+
+	    if (!A._loading){
+	    	A._use();
+	    }
+	};
+
+	A._use = function(){
+		if (stackUse.length == 0){ return; }
+
+		var su = stackUse.pop(),	
+			args = su[0],
+			callback = su[1];
+
+		if (L.isFunction(callback)){
+			callback(A);
+		}
+		A._use();
+	};
+
 	/**
 	 * Registration of the component in the core
-	 * @param key {String|Array|Abricos.Key} Component ID.
-	 * @param obj {Object|Abricos.Component}
+	 * @param comp {Abricos.Component}
 	 * @return {Abricos.Component} Component
 	 * @method add
 	 * @static
 	 */
-	A.add = function(key, obj){
+
+	/**
+	 * Registration of the component in the core
+	 * @param key {String|Array|Abricos.Key} Component ID.
+	 * @param cfg {Object} Component config. 
+	 * 	See {{#crossLink "Abricos.Component"}}{{/crossLink}}
+	 * @return {Abricos.Component} Component
+	 * @method add
+	 * @static
+	 */
+	
+	var stackModsToInit = [];
+	
+	A.add = function(){
+		var args = SLICE.call(arguments, 0),
+			comp;
+
+		// A.add(component);
+		if (args[0] instanceof Component){
+			comp = args[0];
+		}else if(args.length >= 2 && L.isObject(args[1])){	// A.add(key, cfg);
+			comp = new Component(args[0], args[1]);
+		}else{
+			throw new Error("Unable to add a component");
+		}
 		
+		if (A.exists(comp.key)){
+			throw new Error("Component is already registered: key="+comp.key);
+		}
+		
+		var obj = A.objectByKey(A.Env.comps, comp.key);
+		obj.__component = obj;
+
+		stackModsToInit[stackModsToInit.length] = comp;
+
+		if (!A._loading){
+			A._add();
+		}
 	};
+	
+	A._add = function(){
+		if (stackModsToInit.length == 0){ return; }
+		
+		var comp = stackModsToInit.pop();
+
+		if (L.isFunction(comp.entryPoint)){
+			
+			comp.entryPoint(comp.namespace, comp);
+		}
+		A._add();
+	};
+	
+	var onDOMReady = function(){
+		A._loading = false;
+		
+		A._add();
+		A._use();
+	};
+
+	(function() {
+	    if (document.addEventListener) {
+	        return document.addEventListener('DOMContentLoaded', onDOMReady, false);
+	    }
+	    window.attachEvent('onload', onDOMReady);
+	}) ();
+
 
 	/**
 	 * Get object by key (namespace).
