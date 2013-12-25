@@ -1,10 +1,6 @@
-(function(){
+Abricos.add('org.abricosjs.site', {
 	
-var A = Abricos, 
-	MODNAME = 'abricos.js',
-	COMPNAME = 'exmaples';
-
-A.Template.add({
+'template': {
 	"menu": "<div class='pure-menu pure-menu-open'>"+
     	"<a class='pure-menu-heading' href='index.html'>"+
     	"<span class='lang-en'>Examples</span>"+
@@ -49,32 +45,31 @@ A.Template.add({
 		"	        &copy; 2013 Abricos.js. All rights reserved."+
 		"	    </p>"+
 		"	</div>"+
-		"</div>"
-		
-}, MODNAME, COMPNAME);
+		"</div>"		
+},
 
-var PAGES = [{
-	'nm': 'hello-world',
-	'tl': 'Hello World'
-}, {
-	'nm': 'simple-widget',
-	'tl': 'Simple Widget'
-}, {
-	'nm': 'multi-lang',
-	'tl': 'Multi-Language'
-}, {
-	'nm': 'abricosjs.org',
-	'tl': 'abricosjs.org',
-	'url': 'http://abricosjs.org',
-	'divided': true
-}, {
-	'nm': 'ru.abricosjs.org',
-	'tl': 'ru.abricosjs.org',
-	'url': 'http://ru.abricosjs.org',
-}];
+'entryPoint': function(NS, CMP){
 
-A.add(MODNAME, COMPNAME, function(NS, CMP){
-	
+	var PAGES = [{
+		'nm': 'hello-world',
+		'tl': 'Hello World'
+	}, {
+		'nm': 'simple-widget',
+		'tl': 'Simple Widget'
+	}, {
+		'nm': 'multi-lang',
+		'tl': 'Multi-Language'
+	}, {
+		'nm': 'abricosjs.org',
+		'tl': 'abricosjs.org',
+		'url': 'http://abricosjs.org',
+		'divided': true
+	}, {
+		'nm': 'ru.abricosjs.org',
+		'tl': 'ru.abricosjs.org',
+		'url': 'http://ru.abricosjs.org',
+	}];
+
 	var LanguageChangeWidget = function(container){
 		this.init(container);
 	};
@@ -140,5 +135,6 @@ A.add(MODNAME, COMPNAME, function(NS, CMP){
 		elFooter.innerHTML = CMP.template.build('footer').replace('footer');
 	}
 	
+}
+
 });
-})();

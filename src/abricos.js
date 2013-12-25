@@ -455,7 +455,7 @@ var _initAbricos = function(){
 			lre = new RegExp(sre),
 			ma = source.match(re),
 			i, lma, pos, tnm;
-			
+		
 		for (i=ma.length-1;i>=0;i--){
 			lma = ma[i].match(lre);
 			tnm = lma[1];
@@ -625,7 +625,7 @@ var _initAbricos = function(){
 			var cfg = this.cfg,
 				id = cfg.idPrefix;
 			
-			id += this.key.toString.replace(".", "_")+name;
+			id += this.key.toString().replace(".", "_")+name;
 			id += '_'+(TemplateManager._counter++);
 			
 			return id;
@@ -720,28 +720,30 @@ var _initAbricos = function(){
 	 * @class Abricos.Component
 	 * @constructor
 	 * @param key {String|Array|Abricos.Key} Key.
-	 * @param fnEP {Function} Function containing component code. This
-	 * 	function will be executed whenever the component is attached to a
-	 * 	specific Abricos instance.
-	 * 
-	 * 	@param fnEP.NS {Object} Component namespace.
-	 * 	@param fnEP.CMP {Abricos.Component} Component instance.
 	 * 
 	 * @param [cfg] {Object} Component config.
 	 * 	@param [cfg.template] {String|Object} Templates data.
 	 * 	@param [cfg.language] {Object} Language phrases.
 	 * 	@param [cfg.css] {String} CSS Style source.
+	 * 	@param [cfg.entryPoint] {Function} Function containing component code. This
+	 * 		function will be executed whenever the component is attached to a
+	 * 		specific Abricos instance.
+	 * 
+	 * 		@param cfg.entryPoint.NS {Object} Component namespace.
+	 * 		@param cfg.entryPoint.CMP {Abricos.Component} Component instance.
+	 * 
 	 */
-	var Component = A.Component = function(key, fnEP, cfg){
+	var Component = A.Component = function(key, cfg){
 		cfg = Y.merge({
+			'entryPoint': null,
 			'template': null,
 			'language': null,
 			'css': null
 		}, cfg || {});
-		this.init(key, fnEP, cfg);
+		this.init(key, cfg);
 	};
 	Component.prototype = {
-		init: function(key, fnEP, cfg){
+		init: function(key, cfg){
 			
 			/**
 			 * Key
@@ -757,7 +759,7 @@ var _initAbricos = function(){
 			 * @property entryPoint
 			 * @type Function
 			 */
-			this.entryPoint = fnEP;
+			this.entryPoint = cfg.entryPoint;
 
 			/**
 			 * Component template manager.
@@ -817,6 +819,7 @@ var _initAbricos = function(){
 		/**
 		 * Build template
 		 * @method build
+		 * @return {Abricos.TemplateManager}
 		 */
 		build: function(bind, tNames, cfg){
 			var args = SLICE.call(arguments, 0),
@@ -838,7 +841,7 @@ var _initAbricos = function(){
 				cfg = args[alen-1];
 			}
 			
-			return T.build(comp.key, tNames, cfg);
+			return new A.TemplateManager(comp.key, tNames, cfg);
 		}
 		
 	};
@@ -849,7 +852,7 @@ var _initAbricos = function(){
 	 * @class Abricos.ComponentLanguage
 	 */
 	var ComponentLanguage = function(cmp){
-		this.init(component);
+		this.init(cmp);
 	};
 	ComponentLanguage.prototype = {
 		init: function(cmp){
@@ -938,7 +941,7 @@ var _initAbricos = function(){
 		if (stackUse.length == 0){ return; }
 
 		var su = stackUse.pop(),	
-			args = su[0],
+			// args = su[0],
 			callback = su[1];
 
 		if (L.isFunction(callback)){
@@ -984,7 +987,7 @@ var _initAbricos = function(){
 			throw new Error("Component is already registered: key="+comp.key);
 		}
 		
-		var obj = A.objectByKey(A.Env.comps, comp.key);
+		var obj = A.objectByKey(A.Env.comps, comp.key, true);
 		obj.__component = obj;
 
 		stackModsToInit[stackModsToInit.length] = comp;
@@ -996,11 +999,9 @@ var _initAbricos = function(){
 	
 	A._add = function(){
 		if (stackModsToInit.length == 0){ return; }
-		
 		var comp = stackModsToInit.pop();
 
 		if (L.isFunction(comp.entryPoint)){
-			
 			comp.entryPoint(comp.namespace, comp);
 		}
 		A._add();
@@ -1045,22 +1046,20 @@ var _initAbricos = function(){
 	 * 	console.log(d2); // > null
 	 */
 	A.objectByKey = function(obj, key, create){
-		if (L.isObject(obj)){ return null; }
-		
+		if (!L.isObject(obj)){ return null; }
+
 		key = new A.Key(key);
 		
 		var l = obj;
 		key.each(function(ki){
-			l = l[ki];
-			if (!l && !create){
-				return null;
+			if (!l[ki]){
+				if (!create){ return null; }
+				l[ki] = {};
 			}
-			l = l || (l[ki]={});
+			l = l[ki];
 		});
 		return l;
 	};
-	
-	
 };
 
 
