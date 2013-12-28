@@ -203,23 +203,46 @@ var _initAbricos = function(){
 	
 	/**
 	 * Add a language phrases in global storage.
-	 * @param [lang] {String} Language ID
+	 * @param key {String|Array|Abricos.Key} Namespace language phrases.
+	 * @param lang {String} Language ID.
 	 * @param seed {Object} Language phrases
 	 * @method add
 	 * @static
-	 * 
 	 * @example
 	 * 
-	 * 	LNG.add('en', {
+	 * 	LNG.add('org.abricosjs.examples.page', 'en', {
 	 * 		'widget': {
 	 * 			'title': 'Hello World!',
 	 * 			'button': 'Close'
 	 * 		}
 	 * 	});
+	 *
+	 * 	LNG.add('org.abricosjs.examples.page', 'ru', {
+	 * 		'widget': {
+	 * 			'title': 'Привет мир!',
+	 * 			'button': 'Закрыть'
+	 * 		}
+	 * 	});
+	 */
+	LNG.add = function(key, lang, seed){
+		var d = A.Env.langs,
+			dLang = d[lang] || (d[lang] = {}),
+			phs = A.objectByKey(dLang, key, true);
+		
+		LNG.clone(seed, phs);
+		
+		return phs;
+	};
+	
+	/**
+	 * Add a several language phrases in global storage.
+	 * @param key {String|Array|Abricos.Key} Namespace language phrases.
+	 * @param seed {Object} Language phrases including language ID.
+	 * @method addMulti
+	 * @static
+	 * @example
 	 * 
-	 * or adding several languages
-	 * 
-	 * 	LNG.add({
+	 * 	LNG.add('org.abricosjs.examples.page', {
 	 * 		'en': {
 	 * 			'widget': {
 	 * 				'title': 'Hello World!',
@@ -234,20 +257,11 @@ var _initAbricos = function(){
 	 * 		}
 	 * 	});
 	 */
-	LNG.add = function(lang, seed){
-		var args = SLICE.call(arguments, 0),
-			aln = args.length;
+	LNG.addMulti = function(key, seed){
+		if (!L.isObject(seed)){ return; }
 		
-		if (L.isObject(args[0]) && aln == 1){
-			seed = args[0];
-			for (var n in seed){
-				LNG.add(n, seed[n]);
-			}
-		}else if (L.isString(lang) && L.isObject(seed)){
-			var d = A.Env.langs,
-				dLang = d[lang] || (d[lang] = {});
-			
-			LNG.clone(seed, dLang);
+		for (var n in seed){
+			LNG.add(key, n, seed[n]);
 		}
 	};
 	
@@ -288,7 +302,7 @@ var _initAbricos = function(){
 
 	/**
 	 * Add CSS source in global storage.
-	 * @param [key] {String|Array|Abricos.Key} CSS ID.
+	 * @param key {String|Array|Abricos.Key} CSS ID.
 	 * @param seed {String} CSS source
 	 * @method add
 	 * @static
@@ -353,7 +367,7 @@ var _initAbricos = function(){
 	
 	/**
 	 * Add elements of template in global storage.
-	 * @param [key] {String|Array|Abricos.Key} Template ID.
+	 * @param key {String|Array|Abricos.Key} Template ID.
 	 * @param seed {String|Object} Templates data.
 	 * @return {Object} Templates
 	 * @method add
@@ -484,11 +498,15 @@ var _initAbricos = function(){
 	 * The TemplateManager class.
 	 * @class Abricos.TemplateManager
 	 * @constructor
-	 * @param key {String|Array|Abricos.Key} Template ID.
+	 * @param [key] {String|Array|Abricos.Key} Template ID.
 	 * @param [names] {String} Name element of template.
 	 * @param [cfg] {Object} Config.
+	 * 	@param [cfg.idPrefix='abricos_'] ID Prefix. Default 'abricos_'.
+	 * 	@param [cfg.lang=Abricos.config.lang] Language.
+	 * 	@param [cfg.defTName] Default name of element of template (for gel).
 	 */
 	var TemplateManager = function(key, names, cfg){
+		key = key || "";
 		
 		var args = SLICE.call(arguments, 0),
 			alen = args.length;
@@ -549,8 +567,8 @@ var _initAbricos = function(){
 				expShort = new RegExp("(\{\##[a-zA-Z0-9_\.\-]+\})", "g"),
 				expId = new RegExp("(\{i\#[a-z0-9_\-]+\})", "gi"),
 				s, arr, i, rkey, ph, skey,
-				aNames = names.split(','), ii;
-			
+				aNames = (names.length > 0 ? names.split(',') : []), ii;
+							
 			for (var name in tOrig){
 				if (aNames.length > 0){
 					var find = false;
@@ -567,7 +585,7 @@ var _initAbricos = function(){
 					cfg.defTName = name;
 				}
 				s = tOrig[name];
-				
+	
 				// replacement of long IDs {#...}
 				arr = s.match(expLong);
 				if (L.isArray(arr)){ 
@@ -875,6 +893,33 @@ var _initAbricos = function(){
      * @class Abricos
      * @static
      */
+	
+	/**
+	 * Get text from HTML element
+	 * @param node {String|HTMLElement} a node or Selector
+	 * @return {String}
+	 * @method source
+	 * @static
+	 */
+	A.source = function(node){
+		if (!node){ return ""; }
+		
+		if (L.isString(node)){
+			node = L.trim(node);
+			
+			if (node.indexOf('#') === 0){
+				var el = document.getElementById(node.substring(1));
+                if (!el){
+                	return "";
+                }else{
+                	return el.innerHTML;
+                }
+			}
+		}else if (node.innerHTML){
+			return node.innerHTML;
+		}
+		return "";
+	};
 
 	/**
 	 * Namespace components.
@@ -883,16 +928,6 @@ var _initAbricos = function(){
 	 * @static
 	 */
 	A.ns = A.ns || {};
-
-	/**
-	 * Namespace components.
-	 * @property mod
-	 * @type Object
-	 * @static
-	 * @deprecated Use `Abricos.ns`
-	 */
-	A.mod = A.ns;
-	
 
 	/**
 	 * Get component.
@@ -1060,6 +1095,15 @@ var _initAbricos = function(){
 		});
 		return l;
 	};
+	
+	/**
+	 * Namespace components.
+	 * @property mod
+	 * @type Object
+	 * @static
+	 * @deprecated Use `Abricos.ns`
+	 */
+	A.mod = A.ns;
 };
 
 

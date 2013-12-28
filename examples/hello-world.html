@@ -32,13 +32,17 @@
 
 <script>
 Abricos.use(function(){
+	
+	var key = 'org.abricosjs.examples.page';
+	
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	var sTpl = Abricos.source('#abricosjs-template');
 
 	// Add template
-	// #abricosjs-template - identifier of the DOM element that contains the text template
-	Abricos.Template.add('#abricosjs-template');
+	Abricos.Template.add(key, sTpl);
 
 	// Add phrases of language
-	Abricos.Language.add('en', {
+	Abricos.Language.add(key, 'en', {
 		'mywidget': {
 			'title': 'Hello World!',
 			'button': {
@@ -48,12 +52,14 @@ Abricos.use(function(){
 		}
 	});
 
-	// Add CSS Style
 	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
-	Abricos.CSS.add('#abricosjs-style');
+	var sCSS = Abricos.source('#abricosjs-style');
+
+	// Add CSS Style
+	Abricos.CSS.add(key, sCSS);
 
 	// Create a template manager
-	var tm = Abricos.Template.build();
+	var tm = new Abricos.TemplateManager(key);
 
 	// Get a container
 	var elContainer = document.getElementById('helloworld');
@@ -166,13 +172,17 @@ Abricos.use(function(){
 			<h3 class="content-subhead">JavaScript</h3>
 			<pre class="snippet" data-language="js"><code>&lt;script&gt;
 Abricos.use(function(){
+	
+	var key = 'org.abricosjs.examples.page';
+	
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	var sTpl = Abricos.source('#abricosjs-template');
 
 	// Add template
-	// #abricosjs-template - identifier of the DOM element that contains the text template
-	Abricos.Template.add('#abricosjs-template');
+	Abricos.Template.add(key, sTpl);
 
 	// Add phrases of language
-	Abricos.Language.add('en', {
+	Abricos.Language.add(key, 'en', {
 		'mywidget': {
 			'title': 'Hello World!',
 			'button': {
@@ -182,12 +192,14 @@ Abricos.use(function(){
 		}
 	});
 
-	// Add CSS Style
 	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
-	Abricos.CSS.add('#abricosjs-style');
+	var sCSS = Abricos.source('#abricosjs-style');
+
+	// Add CSS Style
+	Abricos.CSS.add(key, sCSS);
 
 	// Create a template manager
-	var tm = Abricos.Template.build();
+	var tm = new Abricos.TemplateManager(key);
 
 	// Get a container
 	var elContainer = document.getElementById('helloworld');
@@ -239,13 +251,17 @@ Abricos.use(function(){
 
 &lt;script&gt;
 Abricos.use(function(){
+	
+	var key = 'org.abricosjs.examples.page';
+	
+	// #abricosjs-template - identifier of the DOM element that contains the text template
+	var sTpl = Abricos.source('#abricosjs-template');
 
 	// Add template
-	// #abricosjs-template - identifier of the DOM element that contains the text template
-	Abricos.Template.add('#abricosjs-template');
+	Abricos.Template.add(key, sTpl);
 
 	// Add phrases of language
-	Abricos.Language.add('en', {
+	Abricos.Language.add(key, 'en', {
 		'mywidget': {
 			'title': 'Hello World!',
 			'button': {
@@ -255,12 +271,14 @@ Abricos.use(function(){
 		}
 	});
 
-	// Add CSS Style
 	// abricosjs-style - identifier of the DOM element that contains the text CSS Style
-	Abricos.CSS.add('#abricosjs-style');
+	var sCSS = Abricos.source('#abricosjs-style');
+
+	// Add CSS Style
+	Abricos.CSS.add(key, sCSS);
 
 	// Create a template manager
-	var tm = Abricos.Template.build();
+	var tm = new Abricos.TemplateManager(key);
 
 	// Get a container
 	var elContainer = document.getElementById('helloworld');
