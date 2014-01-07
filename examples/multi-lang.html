@@ -71,8 +71,11 @@
 				// Get a container for widget in English
 				var elEN = document.getElementById('helloworld-en');
 				
+				// Get component namespace
+				var NS = Abricos.ns('org.abricosjs.example');
+			
 				// Define in helloworld.js 
-				new Abricos.mod.example.HelloWorldWidget(elEN, {
+				new NS.HelloWorldWidget(elEN, {
 					'lang': 'en'
 				});
 				
@@ -80,7 +83,7 @@
 				var elRU = document.getElementById('helloworld-ru');
 				
 				// Define in helloworld.js 
-				new Abricos.mod.example.HelloWorldWidget(elRU, {
+				new NS.HelloWorldWidget(elRU, {
 					'lang': 'ru'
 				});
 			
@@ -115,13 +118,16 @@
 </code></pre>
 			
 			<h3 class="content-subhead">JavaScript</h3>
-			<pre class="snippet" data-language="html"><code>&lt;script&gt;
+			<pre class="snippet" data-language="js"><code>&lt;script&gt;
 Abricos.use(function(){
 	// Get a container for widget in English
 	var elEN = document.getElementById('helloworld-en');
 	
+	// Get component namespace
+	var NS = Abricos.ns('org.abricosjs.example');
+
 	// Define in helloworld.js 
-	new Abricos.mod.example.HelloWorldWidget(elEN, {
+	new NS.HelloWorldWidget(elEN, {
 		'lang': 'en'
 	});
 	
@@ -129,10 +135,9 @@ Abricos.use(function(){
 	var elRU = document.getElementById('helloworld-ru');
 	
 	// Define in helloworld.js 
-	new Abricos.mod.example.HelloWorldWidget(elRU, {
+	new NS.HelloWorldWidget(elRU, {
 		'lang': 'ru'
 	});
-
 });
 &lt;/script&gt;</code></pre>
 	
