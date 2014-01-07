@@ -242,7 +242,7 @@ var _initAbricos = function(){
 	 * @static
 	 * @example
 	 * 
-	 * 	LNG.add('org.abricosjs.examples.page', {
+	 * 	LNG.addMulti('org.abricosjs.examples.page', {
 	 * 		'en': {
 	 * 			'widget': {
 	 * 				'title': 'Hello World!',
@@ -520,9 +520,13 @@ var _initAbricos = function(){
 		
 		cfg = Y.merge({
 			'idPrefix': 'abricos_',
-			'lang': CONF.lang,
+			'lang': null,
 			'defTName': null
 		}, cfg || {});
+		
+		if (L.isNull(cfg.lang)){
+			cfg.lang = CONF.lang;
+		}
 		
 		this.init(key, names, cfg);
 	};
@@ -791,15 +795,15 @@ var _initAbricos = function(){
 			}
 			
 			if (L.isObject(cfg.language)){
-				LNG.add(cfg.language);
+				LNG.addMulti(key, cfg.language);
 			}
-			
+
 			if (L.isString(cfg.css)){
-				CSS.add(key, css);
+				CSS.add(key, cfg.css);
 			}
 			
 			var keyNS = this.key.pop(true),
-				ns = A.objectByKey(A.ns, keyNS);
+				ns = A.objectByKey(A.mod, keyNS, true);
 			
 			/**
 			 * Namespace.
@@ -858,7 +862,7 @@ var _initAbricos = function(){
 			if (L.isObject(args[alen-1])){
 				cfg = args[alen-1];
 			}
-			
+		
 			return new A.TemplateManager(comp.key, tNames, cfg);
 		}
 		
@@ -920,14 +924,25 @@ var _initAbricos = function(){
 		}
 		return "";
 	};
-
+	
 	/**
 	 * Namespace components.
-	 * @property ns
+	 * @property mod
 	 * @type Object
 	 * @static
 	 */
-	A.ns = A.ns || {};
+	A.mod = A.mod || {};
+
+	/**
+	 * Get namespace components.
+	 * @param key {String|Array|Abricos.Key} Namespace component.
+	 * @return {Object}
+	 * @method ns
+	 * @static
+	 */
+	A.ns = function(key){
+		return A.objectByKey(A.mod, key);
+	};
 
 	/**
 	 * Get component.
@@ -995,7 +1010,7 @@ var _initAbricos = function(){
 
 	/**
 	 * Registration of the component in the core
-	 * @param key {String|Array|Abricos.Key} Component ID.
+	 * @param key {String|Array|Abricos.Key} Component name or namespace with name.
 	 * @param cfg {Object} Component config. 
 	 * 	See {{#crossLink "Abricos.Component"}}{{/crossLink}}
 	 * @return {Abricos.Component} Component
@@ -1096,14 +1111,6 @@ var _initAbricos = function(){
 		return l;
 	};
 	
-	/**
-	 * Namespace components.
-	 * @property mod
-	 * @type Object
-	 * @static
-	 * @deprecated Use `Abricos.ns`
-	 */
-	A.mod = A.ns;
 };
 
 

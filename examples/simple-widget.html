@@ -57,15 +57,18 @@
 				
 			</div>
 			
-			<script>
-			Abricos.use(function(){
-				// Get a container
-				var el = document.getElementById('helloworld');
-				
-				// Define in helloworld.js 
-				new Abricos.mod.example.HelloWorldWidget(el);
-			});
-			</script>
+<script>
+Abricos.use(function(){
+	// Get a container
+	var el = document.getElementById('helloworld');
+	
+	// Get component namespace
+	var NS = Abricos.ns('org.abricosjs.example');
+	
+	// Define in helloworld.js 
+	new NS.HelloWorldWidget(el);
+});
+</script>
 			
 			<h3 class="content-subhead">Description</h3>
 			
@@ -86,13 +89,16 @@
 			<pre class="snippet" data-language="html"><code>&lt;div id=&quot;helloworld&quot;&gt;Loading...&lt;/div&gt;</code></pre>
 			
 			<h3 class="content-subhead">JavaScript</h3>
-			<pre class="snippet" data-language="html"><code>&lt;script&gt;
+			<pre class="snippet" data-language="js"><code>&lt;script&gt;
 Abricos.use(function(){
 	// Get a container
 	var el = document.getElementById('helloworld');
 	
+	// Get component namespace
+	var NS = Abricos.ns('org.abricosjs.example');
+	
 	// Define in helloworld.js 
-	new Abricos.mod.example.HelloWorldWidget(el);
+	new NS.HelloWorldWidget(el);
 });
 &lt;/script&gt;
 			</code></pre>
