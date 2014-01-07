@@ -827,7 +827,7 @@ var _initAbricos = function(){
 	
 	/**
 	 * The ComponentTemplate class.
-	 * @class ComponentTemplate
+	 * @class Abricos.ComponentTemplate
 	 * @constructor
 	 * @param cmp {Abricos.Component} Component instance.
 	 */
