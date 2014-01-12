@@ -4,3 +4,4 @@
 /.buildpath
 build_tmp*/
 build_docs/
+node_modules
