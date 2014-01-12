@@ -2,6 +2,7 @@
 /.settings
 /.project
 /.buildpath
+build/
 build_tmp*/
 build_docs/
 node_modules

@@ -1,0 +1,26 @@
+{
+  "name": "abricosjs",
+  "description": "Abricos.js",
+  "version": "0.1.0beta",
+  "author": {
+    "name": "Alexander Kuzmin",
+    "email": "roosit@abricos.org",
+    "web": "http://abricosjs.org",
+    "twitter": "roositab"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:abricos/abricos.js.git"
+  },
+  "keywords": [
+    "abricosjs",
+    "abricos"
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-jshint": "~0.8.0"
+  }
+}
