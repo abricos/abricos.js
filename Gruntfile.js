@@ -1,30 +1,17 @@
-/*
- * Code licensed under the MIT License:
- * https://github.com/abricos/abricos.js/blob/master/LICENSE
- *
- * @author Alexander Kuzmin <roosit@abricos.org>
- */
-
 var path = require('path');
-
-// -- Globals ------------------------------------------------------------------
-var ROOT = process.cwd();
 
 // -- Config -------------------------------------------------------------------
 module.exports = function(grunt) {
 	grunt.initConfig({
+		
+		pkg  : grunt.file.readJSON('package.json'),
+	    bower: grunt.file.readJSON('bower.json'),
 
 		clean: {
-	        main: ['build/']
+	        build: ['build/'],
+	        release  : ['release/<%= pkg.version %>/']
 	    },
 	    
-		jshint: {
-		    options: {
-		        jshintrc: '.jshintrc'
-		    },
-		    files: 'src/**/*.js'
-		},
-		
         concat: {
             main: {
                 src: [
@@ -33,6 +20,24 @@ module.exports = function(grunt) {
                 dest: 'build/abricos.js'
             }
         },
+        
+        compress: {
+            release: {
+                options: {
+                    
+                	archive: 'release/<%= pkg.name %>-<%= pkg.version %>.zip'
+                },
+
+                expand : true,
+                flatten: true,
+                dest   : '<%= pkg.name %>/',
+
+                src: [
+                    '{bower.json,LICENSE.md,README.md}',
+                    'build/*'
+                ]
+            }
+        },        
         
         uglify: {
         	options: {
@@ -49,8 +54,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-clean');    
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-compress');
     
-    grunt.registerTask('default', ['clean', 'concat', 'uglify']);
+    grunt.registerTask('default', ['clean:build', 'concat', 'uglify']);
+    grunt.registerTask('release', ['default', 'clean:release', 'compress:release']);
     
 };

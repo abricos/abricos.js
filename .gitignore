@@ -1,8 +1,9 @@
-/.cache
-/.settings
-/.project
-/.buildpath
+.cache
+.settings
+.project
+.buildpath
 build/
 build_tmp*/
 build_docs/
 node_modules
+release/
