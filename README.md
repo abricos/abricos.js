@@ -11,7 +11,7 @@ Abricos.js is a effective framework to work with a template
 2. Install global dependencies:
 
     ```
-[sudo] npm install -g grunt-cli yuidocjs
+[sudo] npm install -g grunt-cli yuidocjs bower
     ```
 
 3. Install local dependencies:

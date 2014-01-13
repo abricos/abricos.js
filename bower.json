@@ -1,0 +1,20 @@
+{
+  "name": "abricosjs",
+  "version": "0.1.0",
+  "homepage": "http://abricosjs.org",
+  "description": "Abricos.js",
+  "keywords": [
+    "abricosjs"
+  ],
+  "authors": [
+    "Alexander Kuzmin <roosit@abricos.org>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
