@@ -11,7 +11,6 @@
 
 /**
  * @module abricos-core
- * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 if (typeof Abricos == 'undefined' || !Abricos){
@@ -22,7 +21,7 @@ if (typeof Abricos_Config == 'undefined'){
 	var Abricos_Config = {};
 }
 
-var _initAbricos = function(){
+var _initAbricos = function(window, Abricos){
 
 	var A = Abricos,
 		Y = YUI,
@@ -1545,5 +1544,5 @@ if (typeof YUI == 'undefined' || !YUI.Lang){
 
 }
 
-_initAbricos();
+_initAbricos(window, Abriocs || {});
 

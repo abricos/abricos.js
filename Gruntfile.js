@@ -14,6 +14,10 @@ var ROOT = process.cwd();
 module.exports = function(grunt) {
 	grunt.initConfig({
 
+		clean: {
+	        main: ['build/']
+	    },
+	    
 		jshint: {
 		    options: {
 		        jshintrc: '.jshintrc'
@@ -26,14 +30,16 @@ module.exports = function(grunt) {
                 src: [
                     'src/abricos.js'
                 ],
-                dest: 'build/src/abricos.js'
+                dest: 'build/abricos.js'
             }
         },
         
         uglify: {
+        	options: {
+        		mangle: false
+    	    },        	
             main: {
                 files: {
-                    // Результат задачи concat
                     'build/abricos-min.js': '<%= concat.main.dest %>'
                 }
             }
@@ -43,7 +49,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-clean');    
     
-    grunt.registerTask('default', ['concat', 'uglify']);
+    grunt.registerTask('default', ['clean', 'concat', 'uglify']);
     
 };

@@ -9,12 +9,5 @@
   "authors": [
     "Alexander Kuzmin <roosit@abricos.org>"
   ],
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ]
+  "license": "MIT"
 }
