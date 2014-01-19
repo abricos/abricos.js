@@ -1544,5 +1544,5 @@ if (typeof YUI == 'undefined' || !YUI.Lang){
 
 }
 
-_initAbricos(window, Abriocs || {});
+_initAbricos(window, Abricos || {});
 
