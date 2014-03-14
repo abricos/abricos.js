@@ -338,7 +338,7 @@ var _initAbricos = function(window, Abricos){
 		var css = CSS.get(key);
 		if (!L.isValue(css)){ return null; }
 		
-		if (CSS.disable){ return; }
+		if (CSS.disable){ return null; }
 
 		var style = document.createElement('style');
 		style['type'] = 'text/css';
@@ -352,6 +352,8 @@ var _initAbricos = function(window, Abricos){
 		
 		var hh1 = document.getElementsByTagName('head')[0];
 		hh1.appendChild(style);
+
+        return css;
 	};
 
 
@@ -668,7 +670,8 @@ var _initAbricos = function(window, Abricos){
 		 * @param obj {Object|String} Variables and their values.
 		 * @param [val] {String} If type `obj` is String, then this parameter 
 		 * must contain a value.
-		 * @return {String}
+         * @return {String}
+         * @method replace
 		 */
 		replace: function(tnm, obj){
 			var t = this.get(tnm),
@@ -695,8 +698,8 @@ var _initAbricos = function(window, Abricos){
 		/**
 		 * Get HTML element Id
 		 * @param idKey {String}
-		 * @method gelid
 		 * @return {String}
+         * @method gelid
 		 */
 		gelid: function(idKey){
 			if (!L.isString(idKey)){ return null; }
