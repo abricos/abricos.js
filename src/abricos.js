@@ -884,11 +884,13 @@ var _initAbricos = function(window, Abricos){
 		},
 		/**
 		 * Get
+         * @param phKey {String|Array|Abricos.Key} Phrase ID
 		 * @param [lang] {String}
 		 * @method get
 		 */
-		get: function(lang){
-			return LNG.get(this.component.key, lang);
+		get: function(phKey, lang){
+            var key = this.component.key.push(phKey, true);
+			return LNG.get(key, lang);
 		}
 	};
 	A.ComponentLanguage = ComponentLanguage;
