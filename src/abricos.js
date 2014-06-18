@@ -534,6 +534,26 @@ var _initAbricos = function(window, Abricos){
 
 	TemplateManager._counter = 1;
 
+    /**
+     * Replace values for the variables in the template.
+     * @param t {String} Template.
+     * @param obj {Object} Variables and their values.
+     * @return {String}
+     * @method replace
+     * @static
+     */
+    TemplateManager.replace = function(t, obj){
+        if (!L.isObject(obj)){ return t; }
+
+        var exp;
+        for (var nm in obj){
+            exp = new RegExp("\{v\#"+nm+"\}", "g");
+            t = t.replace(exp, obj[nm]);
+        }
+
+        return t;
+    };
+
 	TemplateManager.prototype = {
 		init: function(key, names, cfg){
 			/**
@@ -679,17 +699,25 @@ var _initAbricos = function(window, Abricos){
 		},
 
 		/**
-		 * Replace values ​​for the variables in the template.
+		 * Replace values for the variables in the template.
 		 * @param tnm {String} Name of element of template.
-		 * @param obj {Object|String} Variables and their values.
+		 * @param obj {Object|String|Array} Variables and their values.
 		 * @param [val] {String} If type `obj` is String, then this parameter
 		 * must contain a value.
          * @return {String}
          * @method replace
 		 */
 		replace: function(tnm, obj){
-			var t = this.get(tnm),
-				args = SLICE.call(arguments, 0);
+            var t = this.get(tnm),
+                args = SLICE.call(arguments, 0);
+
+            if (L.isArray(obj)){
+                t = TemplateManager.replace(t, obj[0]);
+                for (var i=1; i<obj.length; i++){
+                    t = TemplateManager.replace(t, obj[i]);
+                }
+                return t;
+            }
 
 			if (args.length > 2 && L.isString(args[1])){
 				// Example: TM.replace('widget', 'myvar', 'Hello World!');
@@ -698,15 +726,7 @@ var _initAbricos = function(window, Abricos){
 				o = no;
 			}
 
-			if (!L.isObject(obj)){ return t; }
-
-			var exp;
-			for (var nm in obj){
-				exp = new RegExp("\{v\#"+nm+"\}", "g");
-				t = t.replace(exp, obj[nm]);
-			}
-
-			return t;
+            return TemplateManager.replace(t, obj);
 		},
 
 		/**
