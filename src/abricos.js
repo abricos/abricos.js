@@ -475,9 +475,8 @@ var _initAbricos = function(window, Abricos){
 			lma = ma[i].match(lre);
 			tnm = lma[1];
 			pos = source.indexOf(lma[0]);
-
 			t[tnm] = source.substring(pos+lma[0].length);
-			source = source.substring(0, pos-1);
+			source = source.substring(0, pos);
 		}
 		return t;
 	};
