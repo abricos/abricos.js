@@ -1137,10 +1137,15 @@ var _initAbricos = function(window, Abricos){
 
 		key = new A.Key(key);
 
-		var l = obj;
+		var l = obj, isBreak = false;
 		key.each(function(ki){
+            if (isBreak){ return; }
 			if (!l[ki]){
-				if (!create){ return null; }
+				if (!create){
+                    l = null;
+                    isBreak = true;
+                    return;
+                }
 				l[ki] = {};
 			}
 			l = l[ki];
