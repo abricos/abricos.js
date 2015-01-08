@@ -13,11 +13,11 @@
  * @module abricos-core
  */
 
-if (typeof Abricos == 'undefined' || !Abricos){
+if (typeof Abricos === 'undefined' || !Abricos){
 	var Abricos = {};
 }
 
-if (typeof Abricos_Config == 'undefined'){
+if (typeof Abricos_Config === 'undefined'){
 	var Abricos_Config = {};
 }
 
@@ -190,7 +190,7 @@ var _initAbricos = function(window, Abricos){
 	LNG.clone = function(from, to){
 		for (var n in from){
 			if (L.isObject(from[n]) || L.isArray(from[n])){
-				if (typeof to[n] == 'undefined'){
+				if (typeof to[n] === 'undefined'){
 					to[n] = {};
 				}
 				LNG.clone(from[n], to[n]);
@@ -268,8 +268,8 @@ var _initAbricos = function(window, Abricos){
 	 * Get a phrase/phrases collection by ID.
 	 *
 	 * @param key {String|Array|Abricos.Key} Phrase ID
-	 * @param [lang=Abricos.config.lang] {String} Language ID
-	 * @return {String} Phrase
+	 * @param [options] {Object} Options
+	 * @return {String|object} Phrase
 	 * @method get
 	 * @static
 	 * @example
@@ -282,14 +282,20 @@ var _initAbricos = function(window, Abricos){
 	 * 	var ph = LNG.get(['widget', 'button'], 'ru');
 	 * 	console.log(ph); // > Закрыть
 	 *
-	 */
-	LNG.get = function(key, lang){
-		lang = lang || A.config.lang;
+     */
+    LNG.get = function(key, options){
+        options = options || {};
+		options.lang = options.lang || A.config.lang;
+        options.isData = options.isData || false;
 
-		var ph = A.objectByKey(A.Env.langs[lang], key);
+        var ph = A.objectByKey(A.Env.langs[options.lang], key);
 
-		return L.isString(ph) ? ph : '';
-	};
+        if (options.isData && typeof ph === 'object'){
+            return ph;
+        }
+
+        return L.isString(ph) ? ph : '';
+    };
 
 	/**
 	 * The CSS class
@@ -385,7 +391,7 @@ var _initAbricos = function(window, Abricos){
 		var args = SLICE.call(arguments, 0),
 			alen = args.length;
 
-		if (alen == 1){
+		if (alen === 1){
 			key = "";
 			seed = args[0];
 		}
@@ -423,7 +429,7 @@ var _initAbricos = function(window, Abricos){
 		var args = SLICE.call(arguments, 0),
 			alen = args.length;
 
-		if (alen == 2){
+		if (alen === 2){
 			key = "";
 			name = args[0];
 			source = args[1];
@@ -511,7 +517,7 @@ var _initAbricos = function(window, Abricos){
 		var args = SLICE.call(arguments, 0),
 			alen = args.length;
 
-		if (alen == 2 && L.isObject(args[1])){
+		if (alen === 2 && L.isObject(args[1])){
 			names = '';
 			cfg = args[1];
 		}
@@ -1025,7 +1031,7 @@ var _initAbricos = function(window, Abricos){
 	};
 
 	A._use = function(){
-		if (stackUse.length == 0){ return; }
+		if (stackUse.length === 0){ return; }
 
 		var su = stackUse.pop(),
 			// args = su[0],
@@ -1085,7 +1091,7 @@ var _initAbricos = function(window, Abricos){
 	};
 
 	A._add = function(){
-		if (stackModsToInit.length == 0){ return; }
+		if (stackModsToInit.length === 0){ return; }
 		var comp = stackModsToInit.pop();
 
 		if (L.isFunction(comp.entryPoint)){
