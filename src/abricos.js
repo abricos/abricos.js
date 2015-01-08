@@ -681,7 +681,7 @@ var _initAbricos = function(window, Abricos){
 			var cfg = this.cfg,
 				id = cfg.idPrefix;
 
-			id += this.key.toString().replace(".", "_")+name;
+			id += this.key.toString().replace(/\./g, "_")+name;
 			id += '_'+(TemplateManager._counter++);
 
 			return id;
