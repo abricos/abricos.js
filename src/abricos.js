@@ -40,9 +40,9 @@ var _initAbricos = function(window, Abricos){
 
         /**
          * @property {String} lang
-         * @default 'en'
+         * @default 'en-EN'
          */
-        lang: 'en'
+        lang: 'en-EN'
 
     }, Abricos_Config || {});
 
@@ -176,10 +176,18 @@ var _initAbricos = function(window, Abricos){
 
     /**
      * The Language class manages phrases localization.
-     * @class Abricos.Language
+     * @class Abricos.I18n
      * @static
      */
-    var LNG = A.Language = {};
+    var I18n = A.I18n = {};
+
+    /**
+     * The Language class manages phrases localization. See Abricos.I18n
+     * @class Abricos.Language
+     * @static
+     * @deprecated
+     */
+    A.Language = A.I18n;
 
     /**
      * Clone object
@@ -189,13 +197,13 @@ var _initAbricos = function(window, Abricos){
      * @method clone
      * @static
      */
-    LNG.clone = function(from, to){
+    I18n.clone = function(from, to){
         for (var n in from){
             if (L.isObject(from[n]) || L.isArray(from[n])){
                 if (typeof to[n] === 'undefined'){
                     to[n] = {};
                 }
-                LNG.clone(from[n], to[n]);
+                I18n.clone(from[n], to[n]);
             } else {
                 to[n] = from[n];
             }
@@ -211,26 +219,26 @@ var _initAbricos = function(window, Abricos){
      * @static
      * @example
      *
-     *    LNG.add('org.abricosjs.examples.page', 'en', {
+     *    I18n.add('org.abricosjs.examples.page', 'en-EN', {
 	 * 		'widget': {
 	 * 			'title': 'Hello World!',
 	 * 			'button': 'Close'
 	 * 		}
 	 * 	});
      *
-     *    LNG.add('org.abricosjs.examples.page', 'ru', {
+     *    I18n.add('org.abricosjs.examples.page', 'ru-RU', {
 	 * 		'widget': {
 	 * 			'title': 'Привет мир!',
 	 * 			'button': 'Закрыть'
 	 * 		}
 	 * 	});
      */
-    LNG.add = function(key, lang, seed){
+    I18n.add = function(key, lang, seed){
         var d = A.Env.langs,
             dLang = d[lang] || (d[lang] = {}),
             phs = A.objectByKey(dLang, key, true);
 
-        LNG.clone(seed, phs);
+        I18n.clone(seed, phs);
 
         return phs;
     };
@@ -243,14 +251,14 @@ var _initAbricos = function(window, Abricos){
      * @static
      * @example
      *
-     *    LNG.addMulti('org.abricosjs.examples.page', {
-	 * 		'en': {
+     *    I18n.addMulti('org.abricosjs.examples.page', {
+	 * 		'en-EN': {
 	 * 			'widget': {
 	 * 				'title': 'Hello World!',
 	 * 				'button': 'Close'
 	 * 			}
 	 * 		},
-	 * 		'ru': {
+	 * 		'ru-RU': {
 	 * 			'widget': {
 	 * 				'title': 'Привет мир!',
 	 * 				'button': 'Закрыть'
@@ -258,14 +266,29 @@ var _initAbricos = function(window, Abricos){
 	 * 		}
 	 * 	});
      */
-    LNG.addMulti = function(key, seed){
+    I18n.addMulti = function(key, seed){
         if (!L.isObject(seed)){
             return;
         }
 
         for (var n in seed){
-            LNG.add(key, n, seed[n]);
+            I18n.add(key, n, seed[n]);
         }
+    };
+
+    I18n._normalizeGetOptions = function(options){
+        if (L.isString(options)){
+            options = {
+                lang: options
+            }
+        } else {
+            options = options || {};
+        }
+        options.lang = options.lang || A.config.lang;
+        options.isData = options.isData || false;
+        options.notAlternative = options.notAlternative || false;
+
+        return options;
     };
 
     /**
@@ -278,32 +301,45 @@ var _initAbricos = function(window, Abricos){
      * @static
      * @example
      *
-     *    var ph = LNG.get('widget.title');
+     *    var ph = I18n.get('widget.title');
      *    console.log(ph); // > Hello World!
      *
      * or
      *
-     *    var ph = LNG.get(['widget', 'button'], 'ru-RU');
+     *    var ph = I18n.get(['widget', 'button'], 'ru-RU');
      *    console.log(ph); // > Закрыть
      *
      */
-    LNG.get = function(key, options){
-        if (L.isString(options)){
-            options = {
-                lang: options
-            }
-        } else {
-            options = options || {};
-        }
-        options.lang = options.lang || A.config.lang;
-        options.isData = options.isData || false;
+    I18n.get = function(key, options){
+        options = I18n._normalizeGetOptions(options);
 
         var ph = A.objectByKey(A.Env.langs[options.lang], key);
         if (options.isData && typeof ph === 'object'){
             return ph;
         }
+        ph = L.isString(ph) ? ph : '';
 
-        return L.isString(ph) ? ph : '';
+        if (options.notAlternative){
+            return ph;
+        }
+
+        if (ph === ''){
+            for (var locale in A.Env.langs){
+                if (locale === options.lang){
+                    break;
+                }
+                var nOptions = Y.merge(options, {
+                    lang: locale,
+                    notAlternative: true
+                });
+                ph = I18n.get(key, nOptions);
+                if (ph !== ''){
+                    return ph;
+                }
+            }
+        }
+
+        return ph;
     };
 
     /**
@@ -643,7 +679,7 @@ var _initAbricos = function(window, Abricos){
                     for (i = 0; i < arr.length; i++){
                         skey = arr[i].replace(/[\{#\}]/g, '');
 
-                        ph = LNG.get(skey, cfg.lang);
+                        ph = I18n.get(skey, cfg.lang);
                         s = s.replace(arr[i], ph);
                     }
                 }
@@ -656,7 +692,7 @@ var _initAbricos = function(window, Abricos){
                         skey = arr[i].replace(/[\{##\}]/g, '');
                         rkey = key.push(name + "." + skey, true);
 
-                        ph = LNG.get(rkey, cfg.lang);
+                        ph = I18n.get(rkey, cfg.lang);
                         s = s.replace(arr[i], ph);
                     }
                 }
@@ -870,7 +906,7 @@ var _initAbricos = function(window, Abricos){
             }
 
             if (L.isObject(cfg.language)){
-                LNG.addMulti(key, cfg.language);
+                I18n.addMulti(key, cfg.language);
             }
 
             if (L.isString(cfg.css)){
@@ -963,7 +999,7 @@ var _initAbricos = function(window, Abricos){
          */
         get: function(phKey, lang){
             var key = this.component.key.push(phKey, true);
-            return LNG.get(key, lang);
+            return I18n.get(key, lang);
         }
     };
     A.ComponentLanguage = ComponentLanguage;
