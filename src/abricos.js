@@ -39,10 +39,10 @@ var _initAbricos = function(window, Abricos){
     var CONF = A.config = Y.merge({
 
         /**
-         * @property {String} lang
+         * @property {String} locale
          * @default 'en-EN'
          */
-        lang: 'en-EN'
+        locale: 'en-EN'
 
     }, Abricos_Config || {});
 
@@ -213,7 +213,7 @@ var _initAbricos = function(window, Abricos){
     /**
      * Add a language phrases in global storage.
      * @param key {String|Array|Abricos.Key} Namespace language phrases.
-     * @param lang {String} Language ID.
+     * @param locale {String} Language ID.
      * @param seed {Object} Language phrases
      * @method add
      * @static
@@ -233,9 +233,9 @@ var _initAbricos = function(window, Abricos){
 	 * 		}
 	 * 	});
      */
-    I18n.add = function(key, lang, seed){
+    I18n.add = function(key, locale, seed){
         var d = A.Env.langs,
-            dLang = d[lang] || (d[lang] = {}),
+            dLang = d[locale] || (d[locale] = {}),
             phs = A.objectByKey(dLang, key, true);
 
         I18n.clone(seed, phs);
@@ -279,12 +279,12 @@ var _initAbricos = function(window, Abricos){
     I18n._normalizeGetOptions = function(options){
         if (L.isString(options)){
             options = {
-                lang: options
+                locale: options
             }
         } else {
             options = options || {};
         }
-        options.lang = options.lang || A.config.lang;
+        options.locale = options.locale || A.config.locale;
         options.isData = options.isData || false;
         options.notAlternative = options.notAlternative || false;
 
@@ -312,8 +312,8 @@ var _initAbricos = function(window, Abricos){
      */
     I18n.get = function(key, options){
         options = I18n._normalizeGetOptions(options);
+        var ph = A.objectByKey(A.Env.langs[options.locale], key);
 
-        var ph = A.objectByKey(A.Env.langs[options.lang], key);
         if (options.isData && typeof ph === 'object'){
             return ph;
         }
@@ -325,11 +325,11 @@ var _initAbricos = function(window, Abricos){
 
         if (ph === ''){
             for (var locale in A.Env.langs){
-                if (locale === options.lang){
+                if (locale === options.locale){
                     break;
                 }
                 var nOptions = Y.merge(options, {
-                    lang: locale,
+                    locale: locale,
                     notAlternative: true
                 });
                 ph = I18n.get(key, nOptions);
@@ -563,7 +563,7 @@ var _initAbricos = function(window, Abricos){
      * @param [names] {String} Name element of template.
      * @param [cfg] {Object} Config.
      *    @param [cfg.idPrefix='abricos_'] ID Prefix. Default 'abricos_'.
-     *    @param [cfg.lang=Abricos.config.lang] Language.
+     *    @param [cfg.locale=Abricos.config.locale] Language.
      *    @param [cfg.defTName] Default name of element of template (for gel).
      */
     var TemplateManager = function(key, names, cfg){
@@ -581,12 +581,12 @@ var _initAbricos = function(window, Abricos){
 
         cfg = Y.merge({
             'idPrefix': 'abricos_',
-            'lang': null,
+            'locale': null,
             'defTName': null
         }, cfg || {});
 
-        if (L.isNull(cfg.lang)){
-            cfg.lang = CONF.lang;
+        if (L.isNull(cfg.locale)){
+            cfg.locale = CONF.locale;
         }
 
         this.init(key, names, cfg);
@@ -679,7 +679,7 @@ var _initAbricos = function(window, Abricos){
                     for (i = 0; i < arr.length; i++){
                         skey = arr[i].replace(/[\{#\}]/g, '');
 
-                        ph = I18n.get(skey, cfg.lang);
+                        ph = I18n.get(skey, cfg.locale);
                         s = s.replace(arr[i], ph);
                     }
                 }
@@ -692,7 +692,7 @@ var _initAbricos = function(window, Abricos){
                         skey = arr[i].replace(/[\{##\}]/g, '');
                         rkey = key.push(name + "." + skey, true);
 
-                        ph = I18n.get(rkey, cfg.lang);
+                        ph = I18n.get(rkey, cfg.locale);
                         s = s.replace(arr[i], ph);
                     }
                 }
@@ -994,12 +994,12 @@ var _initAbricos = function(window, Abricos){
         /**
          * Get
          * @param phKey {String|Array|Abricos.Key} Phrase ID
-         * @param [lang] {String}
+         * @param [locale] {String}
          * @method get
          */
-        get: function(phKey, lang){
+        get: function(phKey, locale){
             var key = this.component.key.push(phKey, true);
-            return I18n.get(key, lang);
+            return I18n.get(key, locale);
         }
     };
     A.ComponentLanguage = ComponentLanguage;
