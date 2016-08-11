@@ -1110,7 +1110,7 @@ var _initAbricos = function(window, Abricos){
         }
 
         var su = stackUse.pop(),
-        // args = su[0],
+            // args = su[0],
             callback = su[1];
 
         if (L.isFunction(callback)){
@@ -1391,8 +1391,9 @@ if (typeof YUI == 'undefined' || !YUI.Lang){
          @since 3.5.0
          **/
         L._isNative = function(fn){
-            // return !!(Y.config.useNativeES5 && fn && NATIVE_FN_REGEX.test(fn));
-            // Abricos changes
+            if (Y.config){
+                return !!(Y.config.useNativeES5 && fn && NATIVE_FN_REGEX.test(fn));
+            }
             return true;
         };
 
